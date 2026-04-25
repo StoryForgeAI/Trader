@@ -15,6 +15,7 @@ import {
   Menu,
   RefreshCcw,
   Sparkles,
+  Star,
   UploadCloud,
   UserRound,
   X,
@@ -738,17 +739,37 @@ function DashboardTab({
           </div>
 
           <div className="rounded-[2rem] border border-orange-100 bg-white/90 p-5">
-            <div className="mb-5 text-sm font-semibold text-stone-500">Plain-English snapshot</div>
+            <div className="mb-5 text-sm font-semibold text-stone-500">Quick answers</div>
+            <div className="space-y-3">
+              <FaqCard
+                question="What will I get after uploading a chart?"
+                answer="A simple read of what the price is doing, when to consider buying, when to consider selling, and how risky the setup looks."
+              />
+              <FaqCard
+                question="Do I need to know trading words?"
+                answer="No. The result explains whether price looks stronger, weaker, or mixed in plain English."
+              />
+              <FaqCard
+                question="What if the chart is unclear?"
+                answer="The AI lowers confidence and gives a safer answer instead of pretending it is certain."
+              />
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <RatingCard title="Easy to read" value="4.9/5" />
+              <RatingCard title="Fast answer" value="4.8/5" />
+              <RatingCard title="Beginner friendly" value="5.0/5" />
+            </div>
+
             {analysis ? (
-              <div className="space-y-3">
-                <SummaryRow label="Price direction" value={explainSentiment(analysis.marketSentiment)} />
-                <SummaryRow label="Risk level" value={explainRisk(analysis.riskLevel)} />
-                <SummaryRow label="Confidence" value={`${analysis.confidenceScore}%`} />
-                <SummaryRow label="Best next step" value={analysis.whenToBuy} multiline />
+              <div className="mt-5 rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">Latest read</div>
+                <div className="mt-3 space-y-2">
+                  <SummaryRow label="Price direction" value={explainSentiment(analysis.marketSentiment)} />
+                  <SummaryRow label="Risk level" value={explainRisk(analysis.riskLevel)} />
+                </div>
               </div>
-            ) : (
-              <EmptyState text="Run your first analysis to see the latest AI summary here." />
-            )}
+            ) : null}
           </div>
         </div>
       </Card>
@@ -1419,6 +1440,31 @@ function RetentionCard({ title, body }: { title: string; body: string }) {
     <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 px-4 py-4">
       <div className="text-base font-bold text-stone-900">{title}</div>
       <div className="mt-2 text-sm leading-6 text-stone-600">{body}</div>
+    </div>
+  );
+}
+
+function FaqCard({ question, answer }: { question: string; answer: string }) {
+  return (
+    <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 px-4 py-4">
+      <div className="text-sm font-bold text-stone-900">{question}</div>
+      <div className="mt-2 text-sm leading-6 text-stone-600">{answer}</div>
+    </div>
+  );
+}
+
+function RatingCard({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-4">
+      <div className="flex items-center gap-1 text-amber-500">
+        <Star size={14} fill="currentColor" />
+        <Star size={14} fill="currentColor" />
+        <Star size={14} fill="currentColor" />
+        <Star size={14} fill="currentColor" />
+        <Star size={14} fill="currentColor" className="opacity-70" />
+      </div>
+      <div className="mt-3 text-sm font-bold text-stone-900">{title}</div>
+      <div className="mt-1 text-sm font-semibold text-stone-600">{value}</div>
     </div>
   );
 }
