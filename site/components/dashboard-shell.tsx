@@ -4,6 +4,8 @@ import {
   ArrowRight,
   CandlestickChart,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   CreditCard,
   Gauge,
   Info,
@@ -341,7 +343,7 @@ export function DashboardShell() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fffaf4] px-3 py-3 md:px-6 md:py-6">
+    <main className="min-h-screen bg-[#fffaf4] px-0 py-3 md:pr-6 md:py-6">
       {mobileMenuOpen ? (
         <button
           type="button"
@@ -351,7 +353,7 @@ export function DashboardShell() {
         />
       ) : null}
 
-      <div className="mx-auto flex max-w-7xl gap-4">
+      <div className="flex w-full gap-4">
         <Sidebar
           activeTab={activeTab}
           collapsed={sidebarCollapsed}
@@ -372,22 +374,6 @@ export function DashboardShell() {
             onRefresh={() => void loadDashboard()}
             onToggleSidebar={() => setMobileMenuOpen(true)}
           />
-
-          <div className="mb-4 rounded-[1.75rem] border border-orange-100 bg-white px-5 py-4 shadow-[0_16px_48px_rgba(140,102,57,0.08)]">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-orange-500">
-                  TradeScope workspace
-                </div>
-                <h1 className="mt-2 text-2xl font-black text-stone-900 md:text-3xl">
-                  A cleaner dashboard with a real sidebar and a working analysis flow
-                </h1>
-              </div>
-              <div className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-stone-700">
-                Version TS-WEB-3
-              </div>
-            </div>
-          </div>
 
           {notice ? <NoticeBanner tone={notice.tone} text={notice.text} /> : null}
 
@@ -448,6 +434,21 @@ export function DashboardShell() {
 
 function dashboardSubscriptionOrNull(value: DashboardData['subscription'] | null | undefined) {
   return value ?? null;
+}
+
+function planStrengthValue(plan: string) {
+  switch (plan) {
+    case 'starter':
+      return 40;
+    case 'pro':
+      return 65;
+    case 'trader':
+      return 82;
+    case 'money_printer':
+      return 100;
+    default:
+      return 18;
+  }
 }
 
 function Sidebar({
@@ -530,10 +531,10 @@ function SidebarInner({
           </div>
           {!collapsed ? (
             <div className="min-w-0">
-              <div className="truncate text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
+              <div className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
                 TradeScope
               </div>
-              <div className="truncate text-xs text-stone-500">{profile.email}</div>
+              <div className="break-all text-xs text-stone-500">{profile.email}</div>
             </div>
           ) : null}
         </div>
@@ -543,9 +544,10 @@ function SidebarInner({
             <button
               type="button"
               onClick={onToggleCollapse}
-              className="hidden rounded-2xl border border-stone-200 bg-white px-3 py-2 text-sm font-semibold text-stone-700 md:inline-flex"
+              className="hidden h-10 w-10 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-700 md:inline-flex"
+              aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
             >
-              {collapsed ? 'Open' : 'Close'}
+              {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             </button>
           ) : null}
           <button
@@ -904,6 +906,14 @@ function PlansTab({
         <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
           Use a plan for weekly credits, or top up with one-time packs when you need more chart reads.
         </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <span className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
+            20% better value on paid plans
+          </span>
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+            Weekly refill included
+          </span>
+        </div>
       </Card>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -914,6 +924,15 @@ function PlansTab({
             price={plan.priceLabel}
             description={plan.description}
             featured={currentPlan === plan.id}
+            promo={
+              plan.id === 'pro'
+                ? 'Most popular'
+                : plan.id === 'trader'
+                  ? '20% better value'
+                  : plan.id === 'money_printer'
+                    ? 'Best for heavy usage'
+                    : 'Starter option'
+            }
             buttonLabel={currentPlan === plan.id ? 'Current plan' : 'Open checkout'}
             onClick={() => onCheckout(plan.id, plan.mode)}
           />
@@ -930,6 +949,7 @@ function PlansTab({
               title={pack.title}
               price={pack.priceLabel}
               description={pack.description}
+              promo={pack.id === 'pack_500' ? 'Best pack discount' : 'Instant top-up'}
               buttonLabel="Buy credits"
               compact
               onClick={() => onCheckout(pack.id, pack.mode)}
@@ -970,9 +990,9 @@ function ProfileTab({
 
       <Card>
         <SectionEyebrow>Performance</SectionEyebrow>
-        <h3 className="mt-3 text-2xl font-black text-stone-900">Clear account visuals</h3>
+        <h3 className="mt-3 text-2xl font-black text-stone-900">Your account at a glance</h3>
         <p className="mt-3 text-sm leading-7 text-stone-600">
-          A lighter dashboard with just enough visual structure to stay readable on phones and laptops.
+          A quick visual summary of how much runway you have left for new chart reads.
         </p>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <StatTile title="Credits left" value={String(dashboard.profile.credits)} accent="orange" />
@@ -980,14 +1000,19 @@ function ProfileTab({
           <StatTile title="Account tier" value={dashboard.profile.plan} accent="green" />
         </div>
         <div className="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
-          <div className="mb-4 text-sm font-semibold text-stone-700">Visual balance</div>
+          <div className="mb-4 text-sm font-semibold text-stone-700">Account health</div>
           <BarsChart
             items={[
-              { label: 'Signal confidence', value: Math.min(92, 35 + dashboard.analyses.length * 7) },
-              { label: 'Recent activity', value: Math.min(100, dashboard.analyses.length * 12) },
-              { label: 'Credit runway', value: Math.min(100, dashboard.profile.credits) },
+              { label: 'Credits available', value: Math.min(100, dashboard.profile.credits) },
+              { label: 'Analysis history', value: Math.min(100, dashboard.analyses.length * 12) },
+              { label: 'Plan strength', value: planStrengthValue(dashboard.profile.plan) },
             ]}
           />
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <MiniMetric title="Next action" value="Run a new scan" />
+          <MiniMetric title="Billing state" value={dashboard.subscription?.status ?? 'inactive'} />
+          <MiniMetric title="Refill cycle" value={dashboard.subscription ? 'Weekly' : 'No active plan'} />
         </div>
       </Card>
     </div>
@@ -1021,15 +1046,24 @@ function AboutTab() {
 
       <Card>
         <SectionEyebrow>Design direction</SectionEyebrow>
-        <h3 className="mt-3 text-2xl font-black text-stone-900">Lighter, cleaner, easier to scan</h3>
+        <h3 className="mt-3 text-2xl font-black text-stone-900">How the product helps</h3>
         <p className="mt-3 text-sm leading-7 text-stone-600">
-          This version is built to feel brighter, simpler, and more useful on phones and laptops.
+          The experience is built around one short loop: upload, read, decide.
         </p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <MiniMetric title="Primary style" value="Light, warm, premium" />
-          <MiniMetric title="Optimized for" value="Phone and desktop" />
-          <MiniMetric title="Result format" value="Full-screen report" />
-          <MiniMetric title="Language" value="English only" />
+        <div className="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+          <div className="mb-4 text-sm font-semibold text-stone-700">What the AI returns</div>
+          <BarsChart
+            items={[
+              { label: 'Entry timing', value: 88 },
+              { label: 'Exit timing', value: 91 },
+              { label: 'Risk clarity', value: 84 },
+            ]}
+          />
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <MiniMetric title="Step 1" value="Upload chart" />
+          <MiniMetric title="Step 2" value="Get trader view" />
+          <MiniMetric title="Step 3" value="Act faster" />
         </div>
       </Card>
     </div>
@@ -1107,15 +1141,12 @@ function ResultOverlay({
 
             <div className="space-y-6">
               <Card className="p-6">
-                <SectionEyebrow>Trade summary</SectionEyebrow>
-                <h2 className="mt-3 text-3xl font-black text-stone-900">
-                  Clear buy and sell guidance with less noise
-                </h2>
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <InsightPanel title="What is happening?" body={analysis.whatIsHappening} />
-                  <InsightPanel title="Why" body={analysis.reasoning} />
+                <SectionEyebrow>Trader AI</SectionEyebrow>
+                <h2 className="mt-3 text-3xl font-black text-stone-900">The key trading calls</h2>
+                <div className="mt-6 grid gap-4">
                   <InsightPanel title="When to BUY" body={analysis.whenToBuy} emphasis />
                   <InsightPanel title="When to SELL" body={analysis.whenToSell} emphasis />
+                  <InsightPanel title="Risk note" body={analysis.riskLevel} />
                 </div>
               </Card>
 
@@ -1127,7 +1158,7 @@ function ResultOverlay({
               <Card className="p-6">
                 <div className="mb-4 text-sm font-semibold text-stone-700">Signals detected</div>
                 <div className="flex flex-wrap gap-2">
-                  {[...analysis.keySignals, ...analysis.detectedIndicators].map((item) => (
+                  {[...analysis.keySignals, ...analysis.detectedIndicators].slice(0, 6).map((item) => (
                     <span
                       key={item}
                       className="rounded-full border border-orange-200 bg-orange-50 px-3 py-2 text-xs font-semibold text-stone-700"
@@ -1198,7 +1229,7 @@ function InsightPanel({
       )}
     >
       <div className="text-sm font-semibold text-stone-900">{title}</div>
-      <p className="mt-3 text-sm leading-7 text-stone-600">{body}</p>
+      <p className="mt-3 break-words text-sm leading-7 text-stone-600">{body}</p>
     </div>
   );
 }
@@ -1266,6 +1297,7 @@ function PlanCard({
   onClick,
   featured = false,
   compact = false,
+  promo,
 }: {
   title: string;
   price: string;
@@ -1274,6 +1306,7 @@ function PlanCard({
   onClick: () => void;
   featured?: boolean;
   compact?: boolean;
+  promo?: string;
 }) {
   return (
     <div
@@ -1284,9 +1317,14 @@ function PlanCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-lg font-black text-stone-900">{title}</div>
+          {promo ? (
+            <div className="mb-3 inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
+              {promo}
+            </div>
+          ) : null}
+          <div className="break-words text-lg font-black text-stone-900">{title}</div>
           <div className="mt-2 text-base font-semibold text-stone-700">{price}</div>
-          <div className="mt-2 text-sm leading-6 text-stone-600">{description}</div>
+          <div className="mt-2 break-words text-sm leading-6 text-stone-600">{description}</div>
         </div>
         {featured ? (
           <span className="rounded-full border border-orange-300 bg-white px-3 py-1 text-xs font-semibold text-orange-600">
@@ -1390,7 +1428,9 @@ function SummaryRow({
   return (
     <div className="rounded-[1.2rem] bg-stone-50 px-4 py-3">
       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">{label}</div>
-      <div className={cn('mt-2 text-sm font-semibold text-stone-800', multiline && 'leading-6')}>{value}</div>
+      <div className={cn('mt-2 break-words text-sm font-semibold text-stone-800', multiline && 'leading-6')}>
+        {value}
+      </div>
     </div>
   );
 }
