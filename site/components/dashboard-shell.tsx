@@ -228,12 +228,18 @@ export function DashboardShell() {
 
     try {
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      if (!user) {
+      const user = session?.user ?? null;
+
+      if (!user || !session) {
         router.replace('/auth');
         return;
+      }
+
+      if (!session?.access_token) {
+        throw new Error('Your session expired. Please sign in again.');
       }
 
       const safeName = upload.file.name.replace(/\s+/g, '-');
@@ -248,12 +254,25 @@ export function DashboardShell() {
         throw uploadError;
       }
 
-      const { data, error } = await supabase.functions.invoke('analyze-trade-image', {
-        body: { storagePath },
+      const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/analyze-trade-image`;
+      const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
+        },
+        body: JSON.stringify({ storagePath }),
       });
 
-      if (error) {
-        throw error;
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const errorText =
+          typeof data?.error === 'string'
+            ? data.error
+            : `The analysis request failed with status ${response.status}.`;
+        throw new Error(errorText);
       }
 
       if (!data?.analysis) {
@@ -562,6 +581,17 @@ function SidebarInner({
 
       <div className="mt-auto space-y-3 px-2">
         {!collapsed ? (
+          <div className="rounded-[1.5rem] border border-orange-100 bg-orange-50 p-4">
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">Credits</div>
+            <div className="mt-2 text-2xl font-black text-stone-900">{profile.credits}</div>
+          </div>
+        ) : (
+          <div className="flex justify-center rounded-2xl border border-orange-100 bg-orange-50 px-2 py-3">
+            <span className="text-sm font-black text-stone-900">{profile.credits}</span>
+          </div>
+        )}
+
+        {!collapsed ? (
           <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full bg-emerald-500" />
@@ -664,7 +694,7 @@ function DashboardTab({
         <div className="grid gap-8 lg:grid-cols-[1.12fr_0.88fr]">
           <div>
             <SectionEyebrow>Overview</SectionEyebrow>
-            <h2 className="mt-3 text-3xl font-black text-stone-900">Your trading workspace is ready.</h2>
+            <h2 className="mt-3 break-words text-3xl font-black text-stone-900">Your trading workspace is ready.</h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-stone-600">
               Use the sidebar to jump between analysis, plans, profile, and saved chart reads without hunting through a
               single long page.
@@ -708,7 +738,7 @@ function DashboardTab({
                     <div className="font-semibold capitalize text-stone-900">
                       {item.result.marketSentiment} market bias
                     </div>
-                    <div className="mt-1 text-sm leading-6 text-stone-600">{item.result.entrySuggestion}</div>
+                    <div className="mt-1 break-words text-sm leading-6 text-stone-600">{item.result.entrySuggestion}</div>
                   </div>
                   <div className="text-right text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">
                     {item.result.confidenceScore}%
@@ -788,7 +818,7 @@ function AnalyzeTab({
           ) : (
             <div className="flex h-[340px] flex-col items-center justify-center rounded-[1.5rem] border border-stone-200 bg-white text-center">
               <UploadCloud size={28} className="mb-4 text-orange-500" />
-              <div className="text-lg font-semibold text-stone-900">Drop a trading screenshot here</div>
+              <div className="px-4 text-lg font-semibold text-stone-900">Drop a trading screenshot here</div>
               <div className="mt-2 max-w-md text-sm leading-6 text-stone-600">
                 TradingView, Binance, MetaTrader, broker dashboards, crypto, forex, and stocks all work well.
               </div>
@@ -813,7 +843,7 @@ function AnalyzeTab({
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-            <span className="rounded-full border border-stone-200 bg-white px-3 py-2 text-stone-700">
+            <span className="max-w-full break-all rounded-full border border-stone-200 bg-white px-3 py-2 text-stone-700">
               {upload.name ? `Selected: ${upload.name}` : 'No screenshot selected yet'}
             </span>
             <span
@@ -1369,7 +1399,7 @@ function InfoLine({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-[1.2rem] bg-stone-50 px-4 py-3">
       <div className="text-sm text-stone-500">{label}</div>
-      <div className="text-right text-sm font-semibold capitalize text-stone-800">{value}</div>
+          <div className="max-w-[55%] break-words text-right text-sm font-semibold capitalize text-stone-800">{value}</div>
     </div>
   );
 }
