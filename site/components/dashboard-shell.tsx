@@ -326,6 +326,54 @@ export function DashboardShell() {
     }
   }
 
+  async function handleCancelSubscription() {
+    setBusy(true);
+    setNotice(null);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error('Your session expired. Please sign in again.');
+      }
+
+      const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/cancel-subscription`;
+      const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
+        },
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          typeof data?.error === 'string'
+            ? data.error
+            : `Cancel request failed with status ${response.status}.`,
+        );
+      }
+
+      setNotice({
+        tone: 'success',
+        text: 'Your subscription has been canceled.',
+      });
+      await loadDashboard();
+    } catch (error) {
+      setNotice({
+        tone: 'error',
+        text: error instanceof Error ? error.message : 'Could not cancel subscription.',
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleSignOut() {
     await supabase.auth.signOut();
     router.replace('/auth');
@@ -404,7 +452,10 @@ export function DashboardShell() {
 
           {activeTab === 'plans' ? (
             <PlansTab
+              busy={busy}
               currentPlan={dashboard.profile.plan}
+              subscription={dashboard.subscription}
+              onCancelSubscription={() => void handleCancelSubscription()}
               onCheckout={(id, mode) => void handleCheckout(id, mode)}
             />
           ) : null}
@@ -934,12 +985,21 @@ function AnalyzeTab({
 }
 
 function PlansTab({
+  busy,
   currentPlan,
+  subscription,
+  onCancelSubscription,
   onCheckout,
 }: {
+  busy: boolean;
   currentPlan: string;
+  subscription: DashboardData['subscription'];
+  onCancelSubscription: () => void;
   onCheckout: (id: string, mode: 'payment' | 'subscription') => void;
 }) {
+  const hasCancelableSubscription =
+    subscription?.status === 'active' && Boolean(subscription?.stripe_subscription_id);
+
   return (
     <div className="space-y-6">
       <Card className="bg-gradient-to-br from-[#fff9f2] to-white">
@@ -955,6 +1015,16 @@ function PlansTab({
           <span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
             Weekly refill included
           </span>
+          {hasCancelableSubscription ? (
+            <button
+              type="button"
+              onClick={onCancelSubscription}
+              disabled={busy}
+              className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Cancel subscription
+            </button>
+          ) : null}
         </div>
       </Card>
 

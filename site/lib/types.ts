@@ -13,6 +13,8 @@ export type UserProfile = {
 
 export type SubscriptionInfo = {
   user_id: string;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
   plan: string;
   status: string;
   current_period_end: string | null;
