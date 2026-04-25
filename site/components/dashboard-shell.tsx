@@ -436,6 +436,30 @@ function dashboardSubscriptionOrNull(value: DashboardData['subscription'] | null
   return value ?? null;
 }
 
+function explainSentiment(value: string) {
+  switch (value) {
+    case 'bullish':
+      return 'Price looks stronger';
+    case 'bearish':
+      return 'Price looks weaker';
+    default:
+      return 'Price looks mixed';
+  }
+}
+
+function explainRisk(value: string) {
+  switch (value) {
+    case 'low':
+      return 'Lower risk setup';
+    case 'medium':
+      return 'Medium risk setup';
+    case 'high':
+      return 'Higher risk setup';
+    default:
+      return value;
+  }
+}
+
 function planStrengthValue(plan: string) {
   switch (plan) {
     case 'starter':
@@ -695,11 +719,12 @@ function DashboardTab({
       <Card className="overflow-hidden bg-gradient-to-br from-[#fff9f2] via-white to-[#fff3df]">
         <div className="grid gap-8 lg:grid-cols-[1.12fr_0.88fr]">
           <div>
-            <SectionEyebrow>Overview</SectionEyebrow>
-            <h2 className="mt-3 break-words text-3xl font-black text-stone-900">Your trading workspace is ready.</h2>
+            <SectionEyebrow>Start here</SectionEyebrow>
+            <h2 className="mt-3 break-words text-3xl font-black text-stone-900">
+              Upload a chart and get a simple trading answer fast.
+            </h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-stone-600">
-              Use the sidebar to jump between analysis, plans, profile, and saved chart reads without hunting through a
-              single long page.
+              TradeScope is built to make chart screenshots easier to understand, even if trading words still feel new.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
               <MetricCard label="Credits" value={String(dashboard.profile.credits)} />
@@ -713,13 +738,13 @@ function DashboardTab({
           </div>
 
           <div className="rounded-[2rem] border border-orange-100 bg-white/90 p-5">
-            <div className="mb-5 text-sm font-semibold text-stone-500">Quick snapshot</div>
+            <div className="mb-5 text-sm font-semibold text-stone-500">Plain-English snapshot</div>
             {analysis ? (
               <div className="space-y-3">
-                <SummaryRow label="Bias" value={analysis.marketSentiment} />
-                <SummaryRow label="Risk" value={analysis.riskLevel} />
+                <SummaryRow label="Price direction" value={explainSentiment(analysis.marketSentiment)} />
+                <SummaryRow label="Risk level" value={explainRisk(analysis.riskLevel)} />
                 <SummaryRow label="Confidence" value={`${analysis.confidenceScore}%`} />
-                <SummaryRow label="Buy focus" value={analysis.whenToBuy} multiline />
+                <SummaryRow label="Best next step" value={analysis.whenToBuy} multiline />
               </div>
             ) : (
               <EmptyState text="Run your first analysis to see the latest AI summary here." />
@@ -729,29 +754,25 @@ function DashboardTab({
       </Card>
 
       <Card>
-        <SectionEyebrow>Recent activity</SectionEyebrow>
-        <h3 className="mt-3 text-xl font-black text-stone-900">Saved analyses</h3>
-        <div className="mt-5 space-y-3">
-          {dashboard.analyses.length ? (
-            dashboard.analyses.slice(0, 5).map((item) => (
-              <div key={item.id} className="rounded-[1.5rem] border border-stone-200 bg-stone-50 px-4 py-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="font-semibold capitalize text-stone-900">
-                      {item.result.marketSentiment} market bias
-                    </div>
-                    <div className="mt-1 break-words text-sm leading-6 text-stone-600">{item.result.entrySuggestion}</div>
-                  </div>
-                  <div className="text-right text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">
-                    {item.result.confidenceScore}%
-                  </div>
-                </div>
-                <div className="mt-3 text-xs text-stone-500">{formatDate(item.created_at)}</div>
-              </div>
-            ))
-          ) : (
-            <EmptyState text="Your saved analyses will appear here after the first completed upload." />
-          )}
+        <SectionEyebrow>Why people stay</SectionEyebrow>
+        <h3 className="mt-3 text-xl font-black text-stone-900">Built to keep things simple</h3>
+        <div className="mt-5 grid gap-3">
+          <RetentionCard
+            title="Clear buy and sell timing"
+            body="Instead of chart jargon first, the result starts with when to enter and when to take profit."
+          />
+          <RetentionCard
+            title="Beginner-friendly wording"
+            body="Price looks stronger, weaker, or mixed. Lower risk or higher risk. Easy to read at a glance."
+          />
+          <RetentionCard
+            title="Saved chart history"
+            body="Every finished analysis stays in your account, so you can compare old screenshots and spot patterns."
+          />
+          <RetentionCard
+            title="Fast top-ups and plans"
+            body="When you run low on credits, one tap opens the plan or credit pack that fits your pace."
+          />
         </div>
       </Card>
     </div>
@@ -924,10 +945,11 @@ function PlansTab({
             price={plan.priceLabel}
             description={plan.description}
             featured={currentPlan === plan.id}
+            accent={plan.id}
             promo={
               plan.id === 'pro'
                 ? 'Most popular'
-                : plan.id === 'trader'
+              : plan.id === 'trader'
                   ? '20% better value'
                   : plan.id === 'money_printer'
                     ? 'Best for heavy usage'
@@ -949,6 +971,7 @@ function PlansTab({
               title={pack.title}
               price={pack.priceLabel}
               description={pack.description}
+              accent={pack.id}
               promo={pack.id === 'pack_500' ? 'Best pack discount' : 'Instant top-up'}
               buttonLabel="Buy credits"
               compact
@@ -1115,8 +1138,8 @@ function ResultOverlay({
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
-                <SignalCard title="Bias" value={analysis.marketSentiment} tone={analysis.marketSentiment} />
-                <SignalCard title="Risk" value={analysis.riskLevel} tone={analysis.riskLevel} />
+                <SignalCard title="Price direction" value={explainSentiment(analysis.marketSentiment)} tone={analysis.marketSentiment} />
+                <SignalCard title="Risk level" value={explainRisk(analysis.riskLevel)} tone={analysis.riskLevel} />
                 <SignalCard title="Confidence" value={`${confidence}%`} tone="confidence" />
               </div>
 
@@ -1144,9 +1167,9 @@ function ResultOverlay({
                 <SectionEyebrow>Trader AI</SectionEyebrow>
                 <h2 className="mt-3 text-3xl font-black text-stone-900">The key trading calls</h2>
                 <div className="mt-6 grid gap-4">
-                  <InsightPanel title="When to BUY" body={analysis.whenToBuy} emphasis />
-                  <InsightPanel title="When to SELL" body={analysis.whenToSell} emphasis />
-                  <InsightPanel title="Risk note" body={analysis.riskLevel} />
+                  <InsightPanel title="When to BUY" body={analysis.whenToBuy} emphasis highlight />
+                  <InsightPanel title="When to SELL" body={analysis.whenToSell} emphasis highlight />
+                  <InsightPanel title="Risk note" body={explainRisk(analysis.riskLevel)} highlight />
                 </div>
               </Card>
 
@@ -1216,10 +1239,12 @@ function InsightPanel({
   title,
   body,
   emphasis = false,
+  highlight = false,
 }: {
   title: string;
   body: string;
   emphasis?: boolean;
+  highlight?: boolean;
 }) {
   return (
     <div
@@ -1229,7 +1254,9 @@ function InsightPanel({
       )}
     >
       <div className="text-sm font-semibold text-stone-900">{title}</div>
-      <p className="mt-3 break-words text-sm leading-7 text-stone-600">{body}</p>
+      <p className="mt-3 break-words text-sm leading-7 text-stone-600">
+        {highlight ? <HighlightedText text={body} /> : body}
+      </p>
     </div>
   );
 }
@@ -1298,6 +1325,7 @@ function PlanCard({
   featured = false,
   compact = false,
   promo,
+  accent,
 }: {
   title: string;
   price: string;
@@ -1307,14 +1335,25 @@ function PlanCard({
   featured?: boolean;
   compact?: boolean;
   promo?: string;
+  accent?: string;
 }) {
+  const palette =
+    accent === 'pro'
+      ? 'border-sky-200 bg-gradient-to-br from-sky-50 to-white'
+      : accent === 'trader'
+        ? 'border-orange-300 bg-gradient-to-br from-orange-50 to-amber-50'
+        : accent === 'money_printer'
+          ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-white'
+          : accent === 'pack_500'
+            ? 'border-fuchsia-200 bg-gradient-to-br from-fuchsia-50 to-white'
+            : accent === 'pack_150'
+              ? 'border-violet-200 bg-gradient-to-br from-violet-50 to-white'
+              : featured
+                ? 'border-orange-300 bg-orange-50'
+                : 'border-stone-200 bg-white';
+
   return (
-    <div
-      className={cn(
-        'rounded-[1.75rem] border p-5',
-        featured ? 'border-orange-300 bg-orange-50' : 'border-stone-200 bg-white',
-      )}
-    >
+    <div className={cn('rounded-[1.75rem] border p-5 shadow-[0_16px_40px_rgba(120,95,68,0.08)]', palette)}>
       <div className="flex items-start justify-between gap-4">
         <div>
           {promo ? (
@@ -1372,6 +1411,35 @@ function SignalCard({
       <div className="text-xs font-semibold uppercase tracking-[0.18em] opacity-70">{title}</div>
       <div className="mt-2 text-2xl font-black capitalize">{value}</div>
     </div>
+  );
+}
+
+function RetentionCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 px-4 py-4">
+      <div className="text-base font-bold text-stone-900">{title}</div>
+      <div className="mt-2 text-sm leading-6 text-stone-600">{body}</div>
+    </div>
+  );
+}
+
+function HighlightedText({ text }: { text: string }) {
+  const parts = text.split(/(\b(?:above|below|breakout|breakdown|wait|buy|sell|stop|target|support|resistance)\b|\d[\d,.\-]*)/gi);
+
+  return (
+    <>
+      {parts.map((part, index) => {
+        const isHighlight = /^(?:above|below|breakout|breakdown|wait|buy|sell|stop|target|support|resistance)$/i.test(part) || /\d/.test(part);
+        if (!part) return null;
+        return isHighlight ? (
+          <mark key={`${part}-${index}`} className="rounded bg-yellow-200 px-1 text-stone-900">
+            {part}
+          </mark>
+        ) : (
+          <span key={`${part}-${index}`}>{part}</span>
+        );
+      })}
+    </>
   );
 }
 
