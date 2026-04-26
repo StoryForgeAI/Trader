@@ -2,10 +2,10 @@ export const themeScript = `
   (function() {
     try {
       var stored = localStorage.getItem('scan-sell-ai-theme');
-      var theme = stored === 'dark' ? 'dark' : 'light';
+      var theme = stored === 'light' ? 'light' : 'dark';
       document.documentElement.dataset.theme = theme;
     } catch (e) {
-      document.documentElement.dataset.theme = 'light';
+      document.documentElement.dataset.theme = 'dark';
     }
   })();
 `;

@@ -195,7 +195,7 @@ export function HomePage() {
               >
                 <Link
                   href="/auth"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--text-1)] px-6 py-4 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90"
+                  className="btn-primary inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-4 text-sm font-semibold transition hover:translate-y-[-1px]"
                 >
                   Start researching
                   <ArrowRight size={18} />

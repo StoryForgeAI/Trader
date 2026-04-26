@@ -430,7 +430,7 @@ function TopBar({
         <button
           type="button"
           onClick={onRefresh}
-          className="inline-flex h-11 items-center gap-2 rounded-2xl bg-[var(--text-1)] px-4 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90"
+          className="btn-primary inline-flex h-11 items-center gap-2 rounded-2xl px-4 text-sm font-semibold transition hover:translate-y-[-1px]"
         >
           <RefreshCw size={15} />
           Refresh
@@ -841,7 +841,7 @@ function ResellChatPanel({
             type="button"
             onClick={() => void handleSubmit()}
             disabled={busy}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--text-1)] px-5 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            className="btn-primary inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {busy ? <LoaderCircle className="animate-spin" size={16} /> : <MessageSquareText size={16} />}
             Ask AI
@@ -957,7 +957,7 @@ function AttachmentConfirmModal({
           <button
             type="button"
             onClick={onConfirm}
-            className="inline-flex flex-1 items-center justify-center rounded-2xl bg-[var(--text-1)] px-5 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90"
+            className="btn-primary inline-flex flex-1 items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold transition hover:translate-y-[-1px]"
           >
             Yes, attach it
           </button>
@@ -1071,7 +1071,7 @@ function PlansTab({
               type="button"
               onClick={() => onCheckout(pack.id)}
               disabled={busy}
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--text-1)] px-4 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-primary mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Buy credits
             </button>
@@ -1197,7 +1197,7 @@ function ToolCard({
       <div className="mt-3 text-xs leading-6 text-[var(--text-2)] sm:text-sm sm:leading-7">{body}</div>
       <Link
         href={href}
-        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--text-1)] px-4 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90 sm:mt-5 sm:w-auto"
+        className="btn-primary mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition hover:translate-y-[-1px] sm:mt-5 sm:w-auto"
       >
         Open tool
       </Link>

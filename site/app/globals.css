@@ -19,6 +19,9 @@
   --accent-soft: rgba(249, 115, 22, 0.14);
   --sky-soft: rgba(14, 165, 233, 0.14);
   --success: #059669;
+  --button-primary-bg: #0f172a;
+  --button-primary-bg-hover: #020617;
+  --button-primary-fg: #ffffff;
 }
 
 html[data-theme='dark'] {
@@ -38,6 +41,9 @@ html[data-theme='dark'] {
   --accent-soft: rgba(251, 146, 60, 0.14);
   --sky-soft: rgba(56, 189, 248, 0.14);
   --success: #6ee7b7;
+  --button-primary-bg: #f8fafc;
+  --button-primary-bg-hover: #e2e8f0;
+  --button-primary-fg: #020617;
 }
 
 html {
@@ -97,6 +103,15 @@ a {
   background: var(--surface-soft);
   border: 1px solid var(--line);
   backdrop-filter: blur(18px);
+}
+
+.btn-primary {
+  background: var(--button-primary-bg);
+  color: var(--button-primary-fg);
+}
+
+.btn-primary:hover {
+  background: var(--button-primary-bg-hover);
 }
 
 .grid-fade {
