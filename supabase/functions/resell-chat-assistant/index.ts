@@ -16,6 +16,23 @@ const chatSchema = {
   required: ['answer', 'creditCost'],
 };
 
+function describeError(error: unknown) {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object') {
+    const record = error as Record<string, unknown>;
+    const parts = [
+      typeof record.message === 'string' ? record.message : null,
+      typeof record.details === 'string' ? record.details : null,
+      typeof record.hint === 'string' ? record.hint : null,
+      typeof record.code === 'string' ? `code: ${record.code}` : null,
+    ].filter(Boolean);
+
+    if (parts.length) return parts.join(' | ');
+  }
+
+  return 'Unknown error';
+}
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -179,7 +196,7 @@ Deno.serve(async (request) => {
     );
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: describeError(error) }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
