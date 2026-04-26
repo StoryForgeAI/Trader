@@ -640,12 +640,12 @@ function ResellChatPanel({
         </div>
       </div>
 
-      <div className="mt-6 rounded-[1.8rem] border border-slate-200 bg-white p-4 shadow-[0_12px_30px_rgba(120,142,168,0.06)]">
-        <div className="flex items-start gap-3">
+      <div className="mt-6 rounded-[1.8rem] border border-slate-200 bg-white p-4 shadow-[0_12px_30px_rgba(120,142,168,0.06)] sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-sky-200 bg-sky-50 text-sky-700 transition hover:bg-sky-100"
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center self-start rounded-2xl border border-sky-200 bg-sky-50 text-sky-700 transition hover:bg-sky-100"
             aria-label="Add image"
           >
             <Plus size={18} />
@@ -667,11 +667,11 @@ function ResellChatPanel({
               onChange={(event) => void validateAndSetAttachment(event.target.files?.[0] ?? null)}
             />
 
-            <div className="mt-3 flex flex-wrap items-center gap-3">
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
               {attachment ? (
-                <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-slate-700">
+                <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-slate-700">
                   <ImageUp size={14} />
-                  {attachment.name} (+5 credits)
+                  <span className="truncate">{attachment.name} (+5 credits)</span>
                 </div>
               ) : (
                 <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
@@ -687,12 +687,12 @@ function ResellChatPanel({
           </div>
         </div>
 
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-stretch sm:justify-end">
           <button
             type="button"
             onClick={() => void handleSubmit()}
             disabled={busy}
-            className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {busy ? <LoaderCircle className="animate-spin" size={16} /> : <MessageSquareText size={16} />}
             Ask AI
@@ -839,12 +839,12 @@ function PlansTab({
         </p>
       </Card>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         {CREDIT_PACKS.map((pack) => (
           <div
             key={pack.id}
             className={cn(
-              'rounded-[1.9rem] border p-5 shadow-[0_18px_44px_rgba(120,142,168,0.10)]',
+              'flex min-h-[210px] flex-col justify-between rounded-[1.7rem] border p-4 shadow-[0_18px_44px_rgba(120,142,168,0.10)] sm:min-h-[240px] sm:rounded-[1.9rem] sm:p-5 lg:min-h-[260px]',
               pack.id === 'pack_500'
                 ? 'border-cyan-200 bg-gradient-to-br from-cyan-50 to-white'
                 : pack.id === 'pack_150'
@@ -852,19 +852,21 @@ function PlansTab({
                   : 'border-slate-200 bg-white',
             )}
           >
-            {pack.badge ? (
-              <div className="mb-4 inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
-                {pack.badge}
-              </div>
-            ) : null}
-            <div className="text-2xl font-black text-slate-900">{pack.title}</div>
-            <div className="mt-2 text-lg font-semibold text-slate-700">{pack.priceLabel}</div>
-            <div className="mt-3 text-sm leading-6 text-slate-600">{pack.description}</div>
+            <div>
+              {pack.badge ? (
+                <div className="mb-3 inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700 sm:mb-4 sm:px-3">
+                  {pack.badge}
+                </div>
+              ) : null}
+              <div className="text-lg font-black text-slate-900 sm:text-2xl">{pack.title}</div>
+              <div className="mt-1.5 text-base font-semibold text-slate-700 sm:mt-2 sm:text-lg">{pack.priceLabel}</div>
+              <div className="mt-2 text-xs leading-5 text-slate-600 sm:mt-3 sm:text-sm sm:leading-6">{pack.description}</div>
+            </div>
             <button
               type="button"
               onClick={() => onCheckout(pack.id)}
               disabled={busy}
-              className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 sm:mt-5"
             >
               Buy credits
             </button>
@@ -970,18 +972,18 @@ function ToolCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="rounded-[2rem] border border-sky-100 bg-white p-6 shadow-[0_20px_60px_rgba(117,149,176,0.08)]">
+    <div className="rounded-[1.7rem] border border-sky-100 bg-white p-5 shadow-[0_20px_60px_rgba(117,149,176,0.08)] sm:rounded-[2rem] sm:p-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-600">{icon}</div>
         <div className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
           {badge}
         </div>
       </div>
-      <div className="mt-5 text-2xl font-black text-slate-900">{title}</div>
-      <div className="mt-3 text-sm leading-7 text-slate-600">{body}</div>
+      <div className="mt-4 text-xl font-black text-slate-900 sm:mt-5 sm:text-2xl">{title}</div>
+      <div className="mt-2 text-sm leading-6 text-slate-600 sm:mt-3 sm:leading-7">{body}</div>
       <Link
         href={href}
-        className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:mt-5 sm:w-auto"
       >
         Open tool
       </Link>
