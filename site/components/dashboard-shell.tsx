@@ -52,6 +52,15 @@ const tabs: { id: ActiveTab; label: string; icon: ReactNode; hint: string }[] = 
   { id: 'about', label: 'About', icon: <Info size={18} />, hint: 'How the product helps' },
 ];
 
+const greetings = [
+  'Welcome back',
+  'Good to see you again',
+  'Glad you are back',
+  'Ready for the next winner?',
+  'Back in the lab',
+  'Let us find the next product',
+];
+
 export function DashboardShell() {
   const router = useRouter();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
@@ -60,9 +69,14 @@ export function DashboardShell() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [notice, setNotice] = useState<string | null>(null);
+  const [greeting, setGreeting] = useState('Welcome back');
 
   useEffect(() => {
     void loadDashboard();
+  }, []);
+
+  useEffect(() => {
+    setGreeting(greetings[Math.floor(Math.random() * greetings.length)] ?? 'Welcome back');
   }, []);
 
   useEffect(() => {
@@ -196,6 +210,8 @@ export function DashboardShell() {
             activeTabHint={activeTabMeta.hint}
             busy={busy}
             credits={dashboard.profile.credits}
+            email={dashboard.profile.email}
+            greeting={greeting}
             onRefresh={() => void loadDashboard()}
             onToggleSidebar={() => setMobileMenuOpen(true)}
           />
@@ -363,6 +379,8 @@ function TopBar({
   activeTabHint,
   busy,
   credits,
+  email,
+  greeting,
   onRefresh,
   onToggleSidebar,
 }: {
@@ -370,6 +388,8 @@ function TopBar({
   activeTabHint: string;
   busy: boolean;
   credits: number;
+  email: string;
+  greeting: string;
   onRefresh: () => void;
   onToggleSidebar: () => void;
 }) {
@@ -387,7 +407,10 @@ function TopBar({
         <div className="min-w-0">
           <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">{activeTabLabel}</div>
           <div className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-[var(--text-1)] sm:text-3xl">
-            Polished for faster resale work.
+            <span className="block">{greeting}</span>
+            <span className="mt-1 block break-all text-base font-medium tracking-normal text-[var(--text-2)] sm:text-lg">
+              {email}
+            </span>
           </div>
           <div className="mt-2 text-sm leading-7 text-[var(--text-2)]">{activeTabHint}</div>
         </div>
@@ -723,7 +746,8 @@ function ResellChatPanel({
   }
 
   return (
-    <Card className="relative overflow-hidden">
+    <Card className="signal-card relative overflow-hidden">
+      <SignalTraces />
       {busy ? <ResellChatLoadingOverlay status={loadingStatus} /> : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -949,7 +973,7 @@ function PlansTab({
           <div
             key={pack.id}
             className={cn(
-              'surface-strong flex min-h-[240px] flex-col justify-between rounded-[1.9rem] p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]',
+              'signal-card surface-strong flex min-h-[240px] flex-col justify-between rounded-[1.9rem] p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]',
               pack.id === 'pack_500'
                 ? 'bg-[linear-gradient(180deg,rgba(251,146,60,0.12),rgba(255,255,255,0.90))]'
                 : pack.id === 'pack_150'
@@ -957,6 +981,7 @@ function PlansTab({
                   : '',
             )}
           >
+            <SignalTraces />
             <div>
               {pack.badge ? (
                 <div className="mb-4 inline-flex rounded-full border border-[color:var(--line)] bg-[var(--surface-soft)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">
@@ -1085,7 +1110,8 @@ function ToolCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="surface-strong rounded-[2rem] p-5 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:p-6">
+    <div className="signal-card surface-strong rounded-[2rem] p-5 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:p-6">
+      <SignalTraces />
       <div className="flex items-center justify-between gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)]">{icon}</div>
         <div className="rounded-full border border-[color:var(--line)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--text-2)]">
@@ -1158,6 +1184,18 @@ function HighlightCard({
       </div>
       <h3 className="font-display text-xl font-semibold text-[var(--text-1)]">{title}</h3>
       <p className="mt-3 text-sm leading-7 text-[var(--text-2)]">{body}</p>
+    </div>
+  );
+}
+
+function SignalTraces() {
+  return (
+    <div className="signal-shell" aria-hidden="true">
+      <div className="signal-outline" />
+      <div className="signal-beam signal-beam-horizontal signal-beam-top" />
+      <div className="signal-beam signal-beam-vertical signal-beam-right signal-delay-1" />
+      <div className="signal-beam signal-beam-horizontal signal-beam-bottom signal-delay-2" />
+      <div className="signal-beam signal-beam-vertical signal-beam-left signal-delay-3" />
     </div>
   );
 }
