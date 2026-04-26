@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light">
-      <body>
+      <body className="font-sans">
         <Script
           id="scansell-theme"
           strategy="beforeInteractive"

@@ -4,29 +4,60 @@
 
 :root {
   color-scheme: light;
+  --bg-start: #fff7ed;
+  --bg-mid: #eef6ff;
+  --bg-end: #f7fbff;
+  --surface: rgba(255, 255, 255, 0.74);
+  --surface-strong: rgba(255, 255, 255, 0.92);
+  --surface-soft: rgba(255, 255, 255, 0.56);
+  --line: rgba(148, 163, 184, 0.24);
+  --text-1: #0f172a;
+  --text-2: #334155;
+  --text-3: #64748b;
+  --accent: #f97316;
+  --accent-strong: #ea580c;
+  --accent-soft: rgba(249, 115, 22, 0.14);
+  --sky-soft: rgba(14, 165, 233, 0.14);
+  --success: #059669;
 }
 
 html[data-theme='dark'] {
   color-scheme: dark;
+  --bg-start: #050816;
+  --bg-mid: #091423;
+  --bg-end: #040814;
+  --surface: rgba(8, 15, 30, 0.68);
+  --surface-strong: rgba(11, 19, 38, 0.92);
+  --surface-soft: rgba(255, 255, 255, 0.05);
+  --line: rgba(148, 163, 184, 0.16);
+  --text-1: #f8fafc;
+  --text-2: #d7e2f0;
+  --text-3: #8aa0b7;
+  --accent: #fb923c;
+  --accent-strong: #fdba74;
+  --accent-soft: rgba(251, 146, 60, 0.14);
+  --sky-soft: rgba(56, 189, 248, 0.14);
+  --success: #6ee7b7;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  @apply bg-[#f4fbff] text-slate-900 antialiased;
+  @apply antialiased;
+  min-height: 100vh;
+  color: var(--text-1);
   background-image:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.10), transparent 28%),
-    linear-gradient(180deg, #f6fcff 0%, #eaf7ff 52%, #f7fdff 100%);
-}
-
-html[data-theme='dark'] body {
-  @apply text-white;
-  background-image:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.12), transparent 28%),
-    linear-gradient(180deg, #07121a 0%, #081722 48%, #07121a 100%);
+    radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), transparent 26%),
+    radial-gradient(circle at 80% 18%, rgba(56, 189, 248, 0.14), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.14), transparent 24%),
+    linear-gradient(180deg, var(--bg-start) 0%, var(--bg-mid) 48%, var(--bg-end) 100%);
+  font-feature-settings: 'ss01' on, 'cv02' on, 'cv11' on;
 }
 
 * {
+  box-sizing: border-box;
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
 }
@@ -41,10 +72,96 @@ html[data-theme='dark'] body {
   border-radius: 999px;
 }
 
-.glass {
-  @apply rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl;
+a {
+  -webkit-tap-highlight-color: transparent;
 }
 
-html[data-theme='dark'] .glass {
-  @apply border-white/10 bg-white/5;
+::selection {
+  background: rgba(249, 115, 22, 0.22);
+  color: var(--text-1);
+}
+
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(22px);
+}
+
+.surface-strong {
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(22px);
+}
+
+.surface-soft {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(18px);
+}
+
+.grid-fade {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 84px 84px;
+  mask-image: radial-gradient(circle at center, black 24%, transparent 78%);
+}
+
+.panel-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.panel-sheen::after {
+  content: '';
+  position: absolute;
+  top: -35%;
+  left: -20%;
+  width: 46%;
+  height: 180%;
+  transform: rotate(18deg);
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.42), transparent);
+  opacity: 0.55;
+  animation: shimmer 12s linear infinite;
+  pointer-events: none;
+}
+
+.float-orb {
+  animation: drift 16s ease-in-out infinite;
+}
+
+.float-orb-delayed {
+  animation: drift 20s ease-in-out infinite;
+  animation-delay: -5s;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) scale(1.04);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translate3d(-40%, 0, 0) rotate(18deg);
+  }
+  100% {
+    transform: translate3d(230%, 0, 0) rotate(18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .float-orb,
+  .float-orb-delayed,
+  .panel-sheen::after {
+    animation: none;
+  }
 }

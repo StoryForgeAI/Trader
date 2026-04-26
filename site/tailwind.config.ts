@@ -8,6 +8,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Segoe UI"', '"Aptos"', 'system-ui', 'sans-serif'],
+        display: ['"Trebuchet MS"', '"Aptos Display"', '"Segoe UI"', 'sans-serif'],
+      },
       colors: {
         ink: '#0b0b0c',
         ember: '#f97316',
