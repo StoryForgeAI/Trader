@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 import { ThemeToggle } from '@/components/theme-toggle';
 import { CREDIT_PACKS, IMAGE_ANALYSIS_COST, TEXT_ANALYSIS_COST } from '@/lib/catalog';
@@ -482,10 +483,13 @@ function ResellChatPanel({
   onDashboardRefresh: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const latestAnswerRef = useRef<HTMLDivElement | null>(null);
   const [question, setQuestion] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [attachment, setAttachment] = useState<{ file: File; previewUrl: string; name: string } | null>(null);
+  const [loadingStatus, setLoadingStatus] = useState('Preparing your resale assistant...');
+  const [shouldScrollToLatest, setShouldScrollToLatest] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -494,6 +498,38 @@ function ResellChatPanel({
       }
     };
   }, [attachment]);
+
+  useEffect(() => {
+    if (!busy) {
+      setLoadingStatus('Preparing your resale assistant...');
+      return;
+    }
+
+    const labels = [
+      'Reading your resale question...',
+      'Checking pricing and margin angles...',
+      'Thinking about supplier options...',
+      'Building your answer...',
+    ];
+
+    setLoadingStatus(labels[0]);
+    const timers = labels.slice(1).map((label, index) =>
+      window.setTimeout(() => setLoadingStatus(label), (index + 1) * 1200),
+    );
+
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [busy]);
+
+  useEffect(() => {
+    if (!shouldScrollToLatest || !chats.length) return;
+
+    const timeout = window.setTimeout(() => {
+      latestAnswerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setShouldScrollToLatest(false);
+    }, 180);
+
+    return () => window.clearTimeout(timeout);
+  }, [chats, shouldScrollToLatest]);
 
   async function validateAndSetAttachment(file: File | null) {
     if (!file) return;
@@ -579,6 +615,7 @@ function ResellChatPanel({
       }
       setAttachment(null);
       setMessage(`Answer ready. ${data.totalCost} credits were used for this chat.`);
+      setShouldScrollToLatest(true);
       onDashboardRefresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Chat request failed.');
@@ -589,6 +626,7 @@ function ResellChatPanel({
 
   return (
     <Card className="bg-gradient-to-br from-[#f7fcff] to-white">
+      {busy ? <ResellChatLoadingOverlay status={loadingStatus} /> : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <SectionEyebrow>Resell chat</SectionEyebrow>
@@ -670,8 +708,12 @@ function ResellChatPanel({
 
       <div className="mt-6 space-y-4">
         {chats.length ? (
-          chats.map((chat) => (
-            <div key={chat.id} className="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(120,142,168,0.05)]">
+          chats.map((chat, index) => (
+            <div
+              key={chat.id}
+              ref={index === 0 ? latestAnswerRef : null}
+              className="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(120,142,168,0.05)]"
+            >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-600">
                   {formatDate(chat.created_at)}
@@ -686,7 +728,9 @@ function ResellChatPanel({
               </div>
               <div className="mt-3 rounded-[1.2rem] border border-sky-100 bg-sky-50 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">AI answer</div>
-                <div className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-800">{chat.answer}</div>
+                <div className="mt-2 space-y-3 text-sm leading-7 text-slate-800">
+                  <FormattedChatAnswer answer={chat.answer} />
+                </div>
               </div>
             </div>
           ))
@@ -695,6 +739,86 @@ function ResellChatPanel({
         )}
       </div>
     </Card>
+  );
+}
+
+function ResellChatLoadingOverlay({ status }: { status: string }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(244,251,255,0.82)] backdrop-blur-md">
+      <div className="flex w-[min(92vw,420px)] flex-col items-center rounded-[2rem] border border-sky-100 bg-white/94 px-8 py-10 text-center shadow-[0_30px_100px_rgba(93,146,184,0.18)]">
+        <div className="relative mb-8 h-28 w-28">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2.3, ease: 'linear' }}
+            className="absolute inset-0 rounded-full border-[6px] border-transparent border-t-sky-400 border-r-cyan-300"
+          />
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.7, ease: 'linear' }}
+            className="absolute inset-3 rounded-full border-[5px] border-transparent border-b-sky-500 border-l-blue-300"
+          />
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.2, ease: 'linear' }}
+            className="absolute inset-[26px] rounded-full border-[4px] border-transparent border-t-cyan-400"
+          />
+          <div className="absolute inset-[34px] rounded-full bg-gradient-to-br from-sky-100 to-cyan-50 shadow-inner" />
+        </div>
+
+        <div className="text-lg font-black text-slate-900">Resell AI is working</div>
+        <div className="mt-3 text-sm font-medium text-slate-600">{status}</div>
+      </div>
+    </div>
+  );
+}
+
+function FormattedChatAnswer({ answer }: { answer: string }) {
+  const lines = answer.split('\n').filter((line) => line.trim().length > 0);
+
+  return (
+    <>
+      {lines.map((line, index) => {
+        const trimmed = line.trim();
+        const isBullet = trimmed.startsWith('- ') || trimmed.startsWith('• ');
+        const content = isBullet ? trimmed.slice(2).trim() : trimmed;
+
+        return (
+          <div
+            key={`${index}-${trimmed}`}
+            className={cn(
+              'text-sm leading-7 text-slate-800',
+              isBullet && 'rounded-[1rem] border border-sky-100 bg-white/70 px-3 py-2',
+            )}
+          >
+            {isBullet ? <span className="mr-2 text-sky-600">•</span> : null}
+            <InlineBoldText text={content} />
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+function InlineBoldText({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+
+  return (
+    <>
+      {parts.map((part, index) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return (
+            <span
+              key={`${part}-${index}`}
+              className="rounded-md bg-sky-100 px-1.5 py-0.5 font-bold text-slate-900"
+            >
+              {part.slice(2, -2)}
+            </span>
+          );
+        }
+
+        return <span key={`${part}-${index}`}>{part}</span>;
+      })}
+    </>
   );
 }
 
