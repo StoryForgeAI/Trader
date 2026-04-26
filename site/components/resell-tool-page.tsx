@@ -116,12 +116,12 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
         ? [
             'Uploading your product image...',
             'Reading the product details...',
-            'Estimating resale value...',
+            'Estimating resell value...',
             'Building your selling script...',
           ]
         : [
             'Reading your product idea...',
-            'Estimating resale value...',
+            'Estimating resell value...',
             'Comparing selling potential...',
             'Building your selling script...',
           ];
@@ -292,8 +292,8 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
             </div>
             <h1 className="mt-3 text-3xl font-black text-slate-900">
               {mode === 'image'
-                ? 'Upload a product image and get a resale breakdown'
-                : 'Type a product name and get a lower-cost resale estimate'}
+                ? 'Upload a product image and get a resell breakdown'
+                : 'Type a product name and get a lower-cost resell estimate'}
             </h1>
 
             {mode === 'image' ? (
@@ -413,7 +413,7 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
                     items={[
                       { label: 'Demand', value: analysis.demandScore },
                       { label: 'Margin', value: analysis.marginScore },
-                      { label: 'Resale speed', value: analysis.resaleSpeedScore },
+                      { label: 'Resell speed', value: analysis.resaleSpeedScore },
                     ]}
                   />
                 </div>

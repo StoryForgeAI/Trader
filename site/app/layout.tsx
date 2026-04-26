@@ -9,7 +9,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Scan Sell AI',
   description:
-    'AI resale research for product images and product names.',
+    'AI resell research for product images and product names.',
 };
 
 export default function RootLayout({

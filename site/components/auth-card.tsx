@@ -64,7 +64,7 @@ export function AuthCard() {
           {mode === 'signin' ? 'Welcome back' : 'Create your account'}
         </h2>
         <p className="mt-3 text-sm leading-7 text-stone-600">
-          Sign in to open your resale dashboard, product scans, saved ideas, and credit balance.
+          Sign in to open your resell dashboard, product scans, saved ideas, and credit balance.
         </p>
       </div>
 

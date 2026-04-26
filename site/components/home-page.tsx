@@ -30,7 +30,7 @@ const featureCards = [
   {
     icon: <ImageUp size={18} />,
     title: 'Image-based product scan',
-    body: 'Drop in a supplier image, marketplace screenshot, or product photo and get a fast resale breakdown.',
+    body: 'Drop in a supplier image, marketplace screenshot, or product photo and get a fast resell breakdown.',
   },
   {
     icon: <SearchCheck size={18} />,
@@ -53,7 +53,7 @@ const workflow = [
   {
     step: '02',
     title: 'Get a usable market read',
-    body: 'See product naming, rough price expectations, and the likely resale angle in one pass.',
+    body: 'See product naming, rough price expectations, and the likely resell angle in one pass.',
   },
   {
     step: '03',
@@ -73,7 +73,7 @@ const proofPoints = [
   },
   {
     icon: <TrendingUp size={16} />,
-    label: 'Made for quick resale decisions',
+    label: 'Made for quick resell decisions',
   },
 ];
 
@@ -130,7 +130,7 @@ export function HomePage() {
                 Scan Sell AI
               </div>
               <div className="truncate text-xs text-[var(--text-3)] sm:text-sm">
-                AI resale research for product hunters and quick flips
+                AI resell research for product hunters and quick flips
               </div>
             </div>
           </div>
@@ -147,7 +147,7 @@ export function HomePage() {
                 className="inline-flex max-w-full items-center gap-2 rounded-full border border-[color:var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-medium text-[var(--text-2)] shadow-[0_8px_30px_rgba(15,23,42,0.06)] backdrop-blur-xl"
               >
                 <Sparkles size={16} className="shrink-0 text-[var(--accent)]" />
-                <span className="truncate">Product photo in, resale plan out</span>
+                <span className="truncate">Product photo in, resell plan out</span>
               </motion.div>
 
               <motion.h1
@@ -178,7 +178,7 @@ export function HomePage() {
                     })}
                 className="mt-5 max-w-2xl text-base leading-7 text-[var(--text-2)] sm:text-lg sm:leading-8"
               >
-                Scan Sell AI helps you identify products, estimate resale value, and turn a rough idea into a usable listing angle without wasting time on messy research.
+                Scan Sell AI helps you identify products, estimate resell value, and turn a rough idea into a usable listing angle without wasting time on messy research.
               </motion.p>
 
               <motion.div
@@ -265,7 +265,7 @@ export function HomePage() {
                     <PreviewBlock
                       icon={<ImageUp size={18} />}
                       title="Image to Analysis"
-                      body="Upload a product image to get a cleaner name, a rough value, and a likely resale price range."
+                      body="Upload a product image to get a cleaner name, a rough value, and a likely resell price range."
                     />
                     <PreviewBlock
                       icon={<SearchCheck size={18} />}
@@ -281,7 +281,7 @@ export function HomePage() {
 
                   <div className="mt-5 rounded-[1.4rem] border border-[color:var(--line)] bg-[var(--surface-soft)] p-4">
                     <div className="flex items-center justify-between text-sm text-[var(--text-2)]">
-                      <span>Estimated resale window</span>
+                      <span>Estimated resell window</span>
                       <span className="font-semibold text-[var(--text-1)]">$42 - $59</span>
                     </div>
                     <div className="mt-4 flex items-end gap-2">

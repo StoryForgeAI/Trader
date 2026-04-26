@@ -46,7 +46,7 @@ type ActiveTab = 'dashboard' | 'resell' | 'plans' | 'profile' | 'about';
 
 const tabs: { id: ActiveTab; label: string; icon: ReactNode; hint: string }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} />, hint: 'Overview and latest signals' },
-  { id: 'resell', label: 'Resell', icon: <PackageSearch size={18} />, hint: 'Tools and resale chat' },
+  { id: 'resell', label: 'Resell', icon: <PackageSearch size={18} />, hint: 'Tools and resell chat' },
   { id: 'plans', label: 'Plans', icon: <CreditCard size={18} />, hint: 'Top up credits anytime' },
   { id: 'profile', label: 'Profile', icon: <UserRound size={18} />, hint: 'Account details and progress' },
   { id: 'about', label: 'About', icon: <Info size={18} />, hint: 'How the product helps' },
@@ -157,7 +157,7 @@ export function DashboardShell() {
         <div className="float-orb-delayed absolute right-[-5rem] top-20 h-72 w-72 rounded-full bg-[var(--sky-soft)] blur-3xl" />
         <div className="surface-strong flex items-center gap-3 rounded-[1.8rem] px-6 py-5 shadow-[0_22px_70px_rgba(15,23,42,0.10)]">
           <LoaderCircle className="animate-spin text-[var(--accent)]" size={26} />
-          <span className="text-sm font-semibold">Loading your resale dashboard...</span>
+          <span className="text-sm font-semibold">Loading your resell dashboard...</span>
         </div>
       </div>
     );
@@ -336,7 +336,7 @@ function SidebarInner({
         <div className="surface-soft rounded-[1.6rem] p-4">
           <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">Credits</div>
           <div className="mt-2 font-display text-3xl font-semibold text-[var(--text-1)]">{profile.credits}</div>
-          <div className="mt-2 text-sm text-[var(--text-2)]">Ready for a new scan, lookup, or AI resale question.</div>
+          <div className="mt-2 text-sm text-[var(--text-2)]">Ready for a new scan, lookup, or AI resell question.</div>
         </div>
 
         <div className="surface-soft rounded-[1.5rem] p-4">
@@ -454,7 +454,7 @@ function DashboardTab({
         <Card className="panel-sheen overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.74))]">
           <SectionEyebrow>Welcome back</SectionEyebrow>
           <h2 className="mt-3 max-w-3xl font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--text-1)] sm:text-4xl">
-            Your resale research hub feels sharper now, and it moves faster with you.
+            Your resell research hub feels sharper now, and it moves faster with you.
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--text-2)] sm:text-base">
             Jump into image recognition when you need discovery, switch to text when you already know the product, and keep your next decision close at hand.
@@ -476,7 +476,7 @@ function DashboardTab({
             />
             <InfoCard
               title="Text to Analysis"
-              body="Best when you already know the product name and want a lower-cost resale check without needing image recognition."
+              body="Best when you already know the product name and want a lower-cost resell check without needing image recognition."
               href="/texttoanalisis"
               cta="Open text tool"
               icon={<SearchCheck size={18} />}
@@ -508,7 +508,7 @@ function DashboardTab({
               </div>
             </div>
           ) : (
-            <EmptyState text="Run your first resale analysis to see a quick product summary and score snapshot here." />
+            <EmptyState text="Run your first resell analysis to see a quick product summary and score snapshot here." />
           )}
 
           <div className="mt-5">
@@ -575,14 +575,14 @@ function ResellTab({
       <div className="grid gap-4 lg:grid-cols-2">
         <ToolCard
           title="Image to Analysis"
-          body="Upload a product image to identify the item, estimate its value, get a suggested resale price, and generate a short ad script."
+          body="Upload a product image to identify the item, estimate its value, get a suggested resell price, and generate a short ad script."
           href="/imagetoanalisis"
           badge={`${IMAGE_ANALYSIS_COST} credits`}
           icon={<ImageUp size={20} />}
         />
         <ToolCard
           title="Text to Analysis"
-          body="Type the product name or a short product description to get a lower-cost resale estimate without using image recognition."
+          body="Type the product name or a short product description to get a lower-cost resell estimate without using image recognition."
           href="/texttoanalisis"
           badge={`${TEXT_ANALYSIS_COST} credits`}
           icon={<SearchCheck size={20} />}
@@ -609,7 +609,7 @@ function ResellChatPanel({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [attachment, setAttachment] = useState<{ file: File; previewUrl: string; name: string } | null>(null);
-  const [loadingStatus, setLoadingStatus] = useState('Preparing your resale assistant...');
+  const [loadingStatus, setLoadingStatus] = useState('Preparing your resell assistant...');
   const [shouldScrollToLatest, setShouldScrollToLatest] = useState(false);
 
   useEffect(() => {
@@ -622,12 +622,12 @@ function ResellChatPanel({
 
   useEffect(() => {
     if (!busy) {
-      setLoadingStatus('Preparing your resale assistant...');
+      setLoadingStatus('Preparing your resell assistant...');
       return;
     }
 
     const labels = [
-      'Reading your resale question...',
+      'Reading your resell question...',
       'Checking pricing and margin angles...',
       'Thinking about supplier options...',
       'Building your answer...',
@@ -684,7 +684,7 @@ function ResellChatPanel({
 
   async function handleSubmit() {
     if (!question.trim()) {
-      setMessage('Please type your resale question first.');
+      setMessage('Please type your resell question first.');
       return;
     }
 
@@ -753,7 +753,7 @@ function ResellChatPanel({
         <div>
           <SectionEyebrow>Resell chat</SectionEyebrow>
           <h3 className="mt-3 font-display text-2xl font-semibold tracking-[-0.03em] text-[var(--text-1)] sm:text-3xl">
-            Ask resale questions like a focused GPT.
+            Ask resell questions like a focused GPT.
           </h3>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-2)] sm:text-base">
             This AI stays locked on reselling, pricing, product picks, listing strategy, and supplier guidance. Each question costs between 1 and 25 credits depending on difficulty. Image attachments add 5 credits.
@@ -859,7 +859,7 @@ function ResellChatPanel({
             </div>
           ))
         ) : (
-          <EmptyState text="Your resale chat answers will appear here with the original question and the date." />
+          <EmptyState text="Your resell chat answers will appear here with the original question and the date." />
         )}
       </div>
     </Card>
@@ -964,7 +964,7 @@ function PlansTab({
           Simple one-time credit packs.
         </h2>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--text-2)] sm:text-base">
-          No subscription. Buy credits once, use them whenever you want, and top up only when you need more resale research.
+          No subscription. Buy credits once, use them whenever you want, and top up only when you need more resell research.
         </p>
       </Card>
 
@@ -1063,7 +1063,7 @@ function AboutTab() {
           />
           <AboutRow
             title="Save credits with text"
-            body="Use the text tool when you already know the product name and only need the resale estimate."
+            body="Use the text tool when you already know the product name and only need the resell estimate."
           />
           <AboutRow
             title="Sell faster"
@@ -1075,7 +1075,7 @@ function AboutTab() {
       <Card>
         <SectionEyebrow>Beginner-friendly</SectionEyebrow>
         <h3 className="mt-3 font-display text-3xl font-semibold tracking-[-0.03em] text-[var(--text-1)]">
-          Made for simple resale decisions
+          Made for simple resell decisions
         </h3>
         <div className="surface-soft mt-6 rounded-[1.8rem] p-5">
           <BarsChart

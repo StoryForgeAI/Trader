@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         error:
           error instanceof Error
             ? error.message
-            : 'Could not reach the resale chat service.',
+            : 'Could not reach the resell chat service.',
       },
       { status: 500 },
     );
