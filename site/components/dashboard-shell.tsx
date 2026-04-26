@@ -43,6 +43,7 @@ import type {
 import { cn, formatDate } from '@/lib/utils';
 
 type ActiveTab = 'dashboard' | 'resell' | 'plans' | 'profile' | 'about';
+type PendingAttachment = { file: File; name: string };
 
 const tabs: { id: ActiveTab; label: string; icon: ReactNode; hint: string }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} />, hint: 'Overview and latest signals' },
@@ -572,7 +573,7 @@ function ResellTab({
         </p>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <ToolCard
           title="Image to Analysis"
           body="Upload a product image to identify the item, estimate its value, get a suggested resell price, and generate a short ad script."
@@ -609,6 +610,7 @@ function ResellChatPanel({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [attachment, setAttachment] = useState<{ file: File; previewUrl: string; name: string } | null>(null);
+  const [pendingAttachment, setPendingAttachment] = useState<PendingAttachment | null>(null);
   const [loadingStatus, setLoadingStatus] = useState('Preparing your resell assistant...');
   const [shouldScrollToLatest, setShouldScrollToLatest] = useState(false);
 
@@ -655,9 +657,6 @@ function ResellChatPanel({
   async function validateAndSetAttachment(file: File | null) {
     if (!file) return;
 
-    const confirmed = window.confirm('Are you sure you want to upload this image? It costs 5 credits.');
-    if (!confirmed) return;
-
     const maxSizeBytes = 6 * 1024 * 1024;
     if (file.size > maxSizeBytes) {
       setMessage('The image is too large. Maximum size is 6 MB.');
@@ -670,16 +669,31 @@ function ResellChatPanel({
       return;
     }
 
+    setPendingAttachment({
+      file,
+      name: file.name,
+    });
+  }
+
+  function confirmAttachment() {
+    if (!pendingAttachment) return;
+
     if (attachment?.previewUrl) {
       URL.revokeObjectURL(attachment.previewUrl);
     }
 
     setAttachment({
-      file,
-      previewUrl: URL.createObjectURL(file),
-      name: file.name,
+      file: pendingAttachment.file,
+      previewUrl: URL.createObjectURL(pendingAttachment.file),
+      name: pendingAttachment.name,
     });
+    setPendingAttachment(null);
     setMessage('Image attached. It will add 5 credits to this chat question.');
+  }
+
+  function cancelAttachment() {
+    setPendingAttachment(null);
+    setMessage('Image upload canceled.');
   }
 
   async function handleSubmit() {
@@ -748,6 +762,13 @@ function ResellChatPanel({
   return (
     <Card className="signal-card relative overflow-hidden">
       <SignalTraces />
+      {pendingAttachment ? (
+        <AttachmentConfirmModal
+          fileName={pendingAttachment.name}
+          onConfirm={confirmAttachment}
+          onCancel={cancelAttachment}
+        />
+      ) : null}
       {busy ? <ResellChatLoadingOverlay status={loadingStatus} /> : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -788,7 +809,11 @@ function ResellChatPanel({
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(event) => void validateAndSetAttachment(event.target.files?.[0] ?? null)}
+              onChange={(event) => {
+                const pickedFile = event.target.files?.[0] ?? null;
+                event.currentTarget.value = '';
+                void validateAndSetAttachment(pickedFile);
+              }}
             />
 
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
@@ -895,6 +920,56 @@ function ResellChatLoadingOverlay({ status }: { status: string }) {
         <div className="font-display text-xl font-semibold text-[var(--text-1)]">Resell AI is working</div>
         <div className="mt-3 text-sm font-medium text-[var(--text-2)]">{status}</div>
       </div>
+    </div>
+  );
+}
+
+function AttachmentConfirmModal({
+  fileName,
+  onConfirm,
+  onCancel,
+}: {
+  fileName: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(6,10,22,0.34)] px-4 backdrop-blur-md">
+      <motion.div
+        initial={{ opacity: 0, y: 18, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.24 }}
+        className="surface-strong w-full max-w-md rounded-[2rem] p-6 shadow-[0_28px_90px_rgba(15,23,42,0.20)]"
+      >
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)]">
+          <ImageUp size={20} />
+        </div>
+        <div className="mt-4 font-display text-2xl font-semibold tracking-[-0.03em] text-[var(--text-1)]">
+          Upload this image?
+        </div>
+        <div className="mt-3 text-sm leading-7 text-[var(--text-2)]">
+          This attachment will add 5 credits to your next resell chat question.
+        </div>
+        <div className="surface-soft mt-4 rounded-[1.4rem] px-4 py-3 text-sm font-semibold text-[var(--text-1)]">
+          {fileName}
+        </div>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="inline-flex flex-1 items-center justify-center rounded-2xl bg-[var(--text-1)] px-5 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90"
+          >
+            Yes, attach it
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex flex-1 items-center justify-center rounded-2xl border border-[color:var(--line)] bg-[var(--surface-soft)] px-5 py-3 text-sm font-semibold text-[var(--text-2)] transition hover:border-[var(--accent)] hover:text-[var(--text-1)]"
+          >
+            Not now
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -1110,7 +1185,7 @@ function ToolCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="signal-card surface-strong rounded-[2rem] p-5 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:p-6">
+    <div className="signal-card surface-strong rounded-[1.7rem] p-4 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-6">
       <SignalTraces />
       <div className="flex items-center justify-between gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)]">{icon}</div>
@@ -1118,11 +1193,11 @@ function ToolCard({
           {badge}
         </div>
       </div>
-      <div className="mt-5 font-display text-2xl font-semibold text-[var(--text-1)]">{title}</div>
-      <div className="mt-3 text-sm leading-7 text-[var(--text-2)]">{body}</div>
+      <div className="mt-4 font-display text-lg font-semibold leading-tight text-[var(--text-1)] sm:mt-5 sm:text-2xl">{title}</div>
+      <div className="mt-3 text-xs leading-6 text-[var(--text-2)] sm:text-sm sm:leading-7">{body}</div>
       <Link
         href={href}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--text-1)] px-4 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90 sm:w-auto"
+        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--text-1)] px-4 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90 sm:mt-5 sm:w-auto"
       >
         Open tool
       </Link>
@@ -1192,10 +1267,8 @@ function SignalTraces() {
   return (
     <div className="signal-shell" aria-hidden="true">
       <div className="signal-outline" />
-      <div className="signal-beam signal-beam-horizontal signal-beam-top" />
-      <div className="signal-beam signal-beam-vertical signal-beam-right signal-delay-1" />
-      <div className="signal-beam signal-beam-horizontal signal-beam-bottom signal-delay-2" />
-      <div className="signal-beam signal-beam-vertical signal-beam-left signal-delay-3" />
+      <div className="signal-outline signal-delay-1" />
+      <div className="signal-outline signal-delay-2" />
     </div>
   );
 }
