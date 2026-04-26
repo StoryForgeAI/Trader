@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  ArrowRight,
   BadgeDollarSign,
   CircleHelp,
   CreditCard,
@@ -14,15 +15,20 @@ import {
   MessageSquareText,
   PackageSearch,
   Plus,
+  RefreshCw,
   SearchCheck,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
   UserRound,
   X,
+  Zap,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 
 import { ThemeToggle } from '@/components/theme-toggle';
 import { CREDIT_PACKS, IMAGE_ANALYSIS_COST, TEXT_ANALYSIS_COST } from '@/lib/catalog';
@@ -38,12 +44,12 @@ import { cn, formatDate } from '@/lib/utils';
 
 type ActiveTab = 'dashboard' | 'resell' | 'plans' | 'profile' | 'about';
 
-const tabs: { id: ActiveTab; label: string; icon: ReactNode }[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-  { id: 'resell', label: 'Resell', icon: <PackageSearch size={18} /> },
-  { id: 'plans', label: 'Plans', icon: <CreditCard size={18} /> },
-  { id: 'profile', label: 'Profile', icon: <UserRound size={18} /> },
-  { id: 'about', label: 'About', icon: <Info size={18} /> },
+const tabs: { id: ActiveTab; label: string; icon: ReactNode; hint: string }[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} />, hint: 'Overview and latest signals' },
+  { id: 'resell', label: 'Resell', icon: <PackageSearch size={18} />, hint: 'Tools and resale chat' },
+  { id: 'plans', label: 'Plans', icon: <CreditCard size={18} />, hint: 'Top up credits anytime' },
+  { id: 'profile', label: 'Profile', icon: <UserRound size={18} />, hint: 'Account details and progress' },
+  { id: 'about', label: 'About', icon: <Info size={18} />, hint: 'How the product helps' },
 ];
 
 export function DashboardShell() {
@@ -132,28 +138,41 @@ export function DashboardShell() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4fbff] text-slate-700">
-        <LoaderCircle className="animate-spin text-sky-500" size={30} />
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 text-[var(--text-2)]">
+        <div className="float-orb absolute -left-14 top-24 h-48 w-48 rounded-full bg-[var(--accent-soft)] blur-3xl" />
+        <div className="float-orb-delayed absolute right-[-5rem] top-20 h-72 w-72 rounded-full bg-[var(--sky-soft)] blur-3xl" />
+        <div className="surface-strong flex items-center gap-3 rounded-[1.8rem] px-6 py-5 shadow-[0_22px_70px_rgba(15,23,42,0.10)]">
+          <LoaderCircle className="animate-spin text-[var(--accent)]" size={26} />
+          <span className="text-sm font-semibold">Loading your resale dashboard...</span>
+        </div>
       </div>
     );
   }
 
   if (!dashboard) return null;
 
+  const activeTabMeta = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const latestAnalysis = dashboard.analyses[0]?.result ?? null;
 
   return (
-    <main className="min-h-screen bg-[#f4fbff] px-0 py-3 md:pr-6 md:py-6">
+    <main className="relative min-h-screen overflow-x-clip px-3 pb-8 pt-3 sm:px-4 md:px-6 md:py-6">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="grid-fade absolute inset-x-0 top-0 h-[36rem] opacity-70" />
+        <div className="float-orb absolute -left-16 top-24 h-52 w-52 rounded-full bg-[var(--accent-soft)] blur-3xl" />
+        <div className="float-orb-delayed absolute right-[-5rem] top-32 h-72 w-72 rounded-full bg-[var(--sky-soft)] blur-3xl" />
+        <div className="float-orb absolute bottom-12 left-1/3 h-44 w-44 rounded-full bg-[rgba(250,204,21,0.12)] blur-3xl" />
+      </div>
+
       {mobileMenuOpen ? (
         <button
           type="button"
           aria-label="Close mobile menu overlay"
-          className="fixed inset-0 z-40 bg-black/30 md:hidden"
+          className="fixed inset-0 z-40 bg-[rgba(15,23,42,0.36)] backdrop-blur-sm md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       ) : null}
 
-      <div className="flex w-full gap-4">
+      <div className="relative mx-auto flex w-full max-w-[1600px] gap-4 lg:gap-5">
         <Sidebar
           activeTab={activeTab}
           mobileOpen={mobileMenuOpen}
@@ -166,11 +185,23 @@ export function DashboardShell() {
           onSignOut={() => void handleSignOut()}
         />
 
-        <div className="min-w-0 flex-1">
-          <TopBar busy={busy} onRefresh={() => void loadDashboard()} onToggleSidebar={() => setMobileMenuOpen(true)} />
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="min-w-0 flex-1"
+        >
+          <TopBar
+            activeTabLabel={activeTabMeta.label}
+            activeTabHint={activeTabMeta.hint}
+            busy={busy}
+            credits={dashboard.profile.credits}
+            onRefresh={() => void loadDashboard()}
+            onToggleSidebar={() => setMobileMenuOpen(true)}
+          />
 
           {notice ? (
-            <div className="mb-4 rounded-[1.5rem] border border-sky-100 bg-sky-50 px-5 py-4 text-sm text-slate-700">
+            <div className="surface-strong mb-4 rounded-[1.6rem] px-5 py-4 text-sm leading-7 text-[var(--text-2)] shadow-[0_16px_50px_rgba(15,23,42,0.08)]">
               {notice}
             </div>
           ) : null}
@@ -192,7 +223,7 @@ export function DashboardShell() {
           {activeTab === 'profile' ? <ProfileTab profile={dashboard.profile} analyses={dashboard.analyses} /> : null}
 
           {activeTab === 'about' ? <AboutTab /> : null}
-        </div>
+        </motion.div>
       </div>
     </main>
   );
@@ -215,24 +246,29 @@ function Sidebar({
 }) {
   return (
     <>
-      <aside className="hidden shrink-0 flex-col rounded-[2rem] border border-sky-100 bg-white px-3 py-3 shadow-[0_24px_80px_rgba(117,149,176,0.12)] md:sticky md:top-6 md:flex md:h-[calc(100vh-3rem)] md:w-[280px]">
+      <aside className="glass panel-sheen hidden shrink-0 flex-col rounded-[2.2rem] px-3 py-3 shadow-[0_24px_90px_rgba(15,23,42,0.10)] md:sticky md:top-6 md:flex md:h-[calc(100vh-3rem)] md:w-[296px]">
         <SidebarInner activeTab={activeTab} profile={profile} setActiveTab={setActiveTab} onSignOut={onSignOut} />
       </aside>
       {mobileOpen ? (
-        <aside className="fixed inset-y-3 left-3 z-50 flex w-[288px] flex-col rounded-[2rem] border border-sky-100 bg-white px-3 py-3 shadow-[0_24px_80px_rgba(117,149,176,0.16)] md:hidden">
+        <motion.aside
+          initial={{ opacity: 0, x: -22 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.24 }}
+          className="glass fixed inset-y-3 left-3 z-50 flex w-[min(90vw,304px)] flex-col rounded-[2.2rem] px-3 py-3 shadow-[0_24px_90px_rgba(15,23,42,0.18)] md:hidden"
+        >
           <div className="mb-5 flex items-center justify-between gap-2 px-2">
             <BrandBlock email={profile.email} />
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--line)] bg-[var(--surface-soft)] text-[var(--text-2)]"
               aria-label="Close menu"
             >
               <X size={17} />
             </button>
           </div>
           <SidebarInner activeTab={activeTab} profile={profile} setActiveTab={setActiveTab} onSignOut={onSignOut} hideBrand />
-        </aside>
+        </motion.aside>
       ) : null}
     </>
   );
@@ -266,35 +302,39 @@ function SidebarInner({
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold transition',
+              'flex w-full items-center gap-3 rounded-[1.35rem] px-3 py-3 text-left text-sm font-semibold transition',
               activeTab === tab.id
-                ? 'bg-sky-500 text-white shadow-[0_12px_30px_rgba(14,165,233,0.24)]'
-                : 'text-slate-600 hover:bg-sky-50 hover:text-slate-900',
+                ? 'bg-[linear-gradient(135deg,var(--accent),#f59e0b)] text-white shadow-[0_18px_40px_rgba(249,115,22,0.28)]'
+                : 'text-[var(--text-2)] hover:bg-[var(--surface-soft)] hover:text-[var(--text-1)]',
             )}
           >
-            {tab.icon}
+            <span className={cn('flex h-9 w-9 items-center justify-center rounded-xl', activeTab === tab.id ? 'bg-white/16' : 'bg-[var(--surface-soft)]')}>
+              {tab.icon}
+            </span>
             <span>{tab.label}</span>
           </button>
         ))}
       </div>
 
-      <div className="mt-auto space-y-3 px-2">
-        <div className="rounded-[1.5rem] border border-sky-100 bg-sky-50 p-4">
-          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-600">Credits</div>
-          <div className="mt-2 text-2xl font-black text-slate-900">{profile.credits}</div>
+      <div className="mt-5 space-y-3 px-2">
+        <div className="surface-soft rounded-[1.6rem] p-4">
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">Credits</div>
+          <div className="mt-2 font-display text-3xl font-semibold text-[var(--text-1)]">{profile.credits}</div>
+          <div className="mt-2 text-sm text-[var(--text-2)]">Ready for a new scan, lookup, or AI resale question.</div>
         </div>
 
-        <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-emerald-500" />
-            <span className="text-sm font-semibold text-slate-900">Ready</span>
+        <div className="surface-soft rounded-[1.5rem] p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-1)]">
+            <span className="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_16px_rgba(16,185,129,0.45)]" />
+            Workspace ready
           </div>
+          <div className="mt-2 text-sm leading-6 text-[var(--text-2)]">Everything here is focused on quick product research and faster listing decisions.</div>
         </div>
 
         <button
           type="button"
           onClick={onSignOut}
-          className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
+          className="inline-flex w-full items-center justify-center gap-3 rounded-[1.3rem] border border-[color:var(--line)] bg-[var(--surface-strong)] px-3 py-3 text-sm font-semibold text-[var(--text-2)] transition hover:border-[var(--accent)] hover:text-[var(--text-1)]"
         >
           <LogOut size={17} />
           Sign out
@@ -307,50 +347,68 @@ function SidebarInner({
 function BrandBlock({ email }: { email: string }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-300 text-white">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 via-amber-400 to-sky-400 text-white shadow-[0_18px_40px_rgba(249,115,22,0.24)]">
         <PackageSearch size={20} />
       </div>
       <div className="min-w-0">
-        <div className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-600">Scan Sell AI</div>
-        <div className="break-all text-xs text-slate-500">{email}</div>
+        <div className="truncate text-sm font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">Scan Sell AI</div>
+        <div className="break-all text-xs text-[var(--text-3)]">{email}</div>
       </div>
     </div>
   );
 }
 
 function TopBar({
+  activeTabLabel,
+  activeTabHint,
   busy,
+  credits,
   onRefresh,
   onToggleSidebar,
 }: {
+  activeTabLabel: string;
+  activeTabHint: string;
   busy: boolean;
+  credits: number;
   onRefresh: () => void;
   onToggleSidebar: () => void;
 }) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-3 rounded-[1.75rem] border border-sky-100 bg-white px-4 py-3 shadow-[0_20px_60px_rgba(117,149,176,0.10)]">
-      <div className="flex items-center gap-3">
+    <div className="glass mb-4 flex flex-col gap-3 rounded-[1.9rem] px-4 py-4 shadow-[0_22px_70px_rgba(15,23,42,0.08)] sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex min-w-0 items-start gap-3">
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 md:hidden"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--line)] bg-[var(--surface-soft)] text-[var(--text-2)] md:hidden"
           aria-label="Open menu"
         >
           <Menu size={18} />
         </button>
-        <div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
-          <span className={cn('h-2.5 w-2.5 rounded-full bg-emerald-500', busy && 'animate-pulse')} />
-          {busy ? 'Working' : 'Ready'}
+        <div className="min-w-0">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">{activeTabLabel}</div>
+          <div className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-[var(--text-1)] sm:text-3xl">
+            Polished for faster resale work.
+          </div>
+          <div className="mt-2 text-sm leading-7 text-[var(--text-2)]">{activeTabHint}</div>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-[var(--success)]">
+          <span className={cn('h-2.5 w-2.5 rounded-full bg-emerald-500', busy && 'animate-pulse')} />
+          {busy ? 'Working' : 'Ready'}
+        </div>
+        <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--line)] bg-[var(--surface-soft)] px-3 py-2 text-sm font-semibold text-[var(--text-2)]">
+          <BadgeDollarSign size={15} className="text-[var(--accent)]" />
+          {credits} credits
+        </div>
         <ThemeToggle />
         <button
           type="button"
           onClick={onRefresh}
-          className="inline-flex h-11 items-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-4 text-sm font-semibold text-slate-800 transition hover:border-sky-300 hover:bg-sky-100"
+          className="inline-flex h-11 items-center gap-2 rounded-2xl bg-[var(--text-1)] px-4 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90"
         >
+          <RefreshCw size={15} />
           Refresh
         </button>
       </div>
@@ -368,74 +426,104 @@ function DashboardTab({
   latestAnalysis: ResellAnalysis | null;
 }) {
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.06fr_0.94fr]">
-      <Card className="bg-gradient-to-br from-[#f5fbff] via-white to-[#ecf9ff]">
-        <SectionEyebrow>Welcome back</SectionEyebrow>
-        <h2 className="mt-3 text-3xl font-black text-slate-900">Your resale research hub is ready.</h2>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600">
-          Start with an image when you need recognition. Use text when you already know the product name and want a cheaper estimate.
-        </p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <MetricCard label="Credits" value={String(profile.credits)} />
-          <MetricCard label="Image tool" value={`${IMAGE_ANALYSIS_COST} credits`} />
-          <MetricCard label="Text tool" value={`${TEXT_ANALYSIS_COST} credits`} />
-        </div>
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <InfoCard
-            title="Image to Analysis"
-            body="Best when you have a product photo or supplier image and need the AI to identify the item for you."
-            href="/imagetoanalisis"
-            cta="Open image tool"
-            icon={<ImageUp size={18} />}
-          />
-          <InfoCard
-            title="Text to Analysis"
-            body="Best when you already know the product name and want to save credits while checking resale potential."
-            href="/texttoanalisis"
-            cta="Open text tool"
-            icon={<SearchCheck size={18} />}
-          />
-        </div>
-      </Card>
+    <div className="space-y-5">
+      <div className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+        <Card className="panel-sheen overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.74))]">
+          <SectionEyebrow>Welcome back</SectionEyebrow>
+          <h2 className="mt-3 max-w-3xl font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--text-1)] sm:text-4xl">
+            Your resale research hub feels sharper now, and it moves faster with you.
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--text-2)] sm:text-base">
+            Jump into image recognition when you need discovery, switch to text when you already know the product, and keep your next decision close at hand.
+          </p>
 
-      <Card>
-        <SectionEyebrow>Latest result</SectionEyebrow>
-        {latestAnalysis ? (
-          <div className="mt-4 space-y-4">
-            <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
-              <div className="text-sm font-semibold text-slate-500">Product</div>
-              <div className="mt-2 text-2xl font-black text-slate-900">{latestAnalysis.productName}</div>
-              <div className="mt-2 text-sm text-slate-600">{latestAnalysis.productSummary}</div>
-            </div>
-            <MiniBars
-              items={[
-                { label: 'Demand', value: latestAnalysis.demandScore },
-                { label: 'Margin', value: latestAnalysis.marginScore },
-                { label: 'Speed', value: latestAnalysis.resaleSpeedScore },
-              ]}
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <MetricCard icon={<BadgeDollarSign size={18} />} label="Credits" value={String(profile.credits)} />
+            <MetricCard icon={<ImageUp size={18} />} label="Image tool" value={`${IMAGE_ANALYSIS_COST} credits`} />
+            <MetricCard icon={<SearchCheck size={18} />} label="Text tool" value={`${TEXT_ANALYSIS_COST} credits`} />
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <InfoCard
+              title="Image to Analysis"
+              body="Best when you have a supplier image, screenshot, or product photo and want the AI to identify what you are looking at."
+              href="/imagetoanalisis"
+              cta="Open image tool"
+              icon={<ImageUp size={18} />}
+            />
+            <InfoCard
+              title="Text to Analysis"
+              body="Best when you already know the product name and want a lower-cost resale check without needing image recognition."
+              href="/texttoanalisis"
+              cta="Open text tool"
+              icon={<SearchCheck size={18} />}
             />
           </div>
-        ) : (
-          <EmptyState text="Run your first resale analysis to see a quick product summary here." />
-        )}
+        </Card>
 
-        <div className="mt-5">
-          <SectionEyebrow>Saved ideas</SectionEyebrow>
-          <div className="mt-3 space-y-3">
-            {analyses.length ? (
-              analyses.slice(0, 4).map((item) => (
-                <div key={item.id} className="rounded-[1.3rem] border border-slate-200 bg-slate-50 p-4">
-                  <div className="font-semibold text-slate-900">{item.result.productName}</div>
-                  <div className="mt-1 text-sm text-slate-600">{item.result.recommendedSellPrice}</div>
-                  <div className="mt-2 text-xs text-slate-500">{formatDate(item.created_at)}</div>
+        <Card>
+          <SectionEyebrow>Latest result</SectionEyebrow>
+          {latestAnalysis ? (
+            <div className="mt-4 space-y-4">
+              <div className="surface-soft rounded-[1.6rem] p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-3)]">Product</div>
+                <div className="mt-3 font-display text-2xl font-semibold text-[var(--text-1)]">{latestAnalysis.productName}</div>
+                <div className="mt-3 text-sm leading-7 text-[var(--text-2)]">{latestAnalysis.productSummary}</div>
+              </div>
+              <div className="surface-soft rounded-[1.6rem] p-4">
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="text-sm font-semibold text-[var(--text-1)]">Signal strength</div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-[var(--text-3)]">Demand, margin, speed</div>
                 </div>
-              ))
-            ) : (
-              <EmptyState text="Your saved product analyses will show up here." />
-            )}
+                <MiniBars
+                  items={[
+                    { label: 'Demand', value: latestAnalysis.demandScore },
+                    { label: 'Margin', value: latestAnalysis.marginScore },
+                    { label: 'Speed', value: latestAnalysis.resaleSpeedScore },
+                  ]}
+                />
+              </div>
+            </div>
+          ) : (
+            <EmptyState text="Run your first resale analysis to see a quick product summary and score snapshot here." />
+          )}
+
+          <div className="mt-5">
+            <SectionEyebrow>Saved ideas</SectionEyebrow>
+            <div className="mt-3 space-y-3">
+              {analyses.length ? (
+                analyses.slice(0, 4).map((item) => (
+                  <div key={item.id} className="surface-soft rounded-[1.35rem] p-4">
+                    <div className="font-semibold text-[var(--text-1)]">{item.result.productName}</div>
+                    <div className="mt-1 text-sm text-[var(--text-2)]">{item.result.recommendedSellPrice}</div>
+                    <div className="mt-2 text-xs uppercase tracking-[0.16em] text-[var(--text-3)]">{formatDate(item.created_at)}</div>
+                  </div>
+                ))
+              ) : (
+                <EmptyState text="Your saved product analyses will show up here once you start scanning ideas." />
+              )}
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <HighlightCard
+          icon={<Zap size={18} />}
+          title="Faster routing"
+          body="The refreshed layout makes it easier to tell where to scan, where to chat, and where to top up."
+        />
+        <HighlightCard
+          icon={<ShieldCheck size={18} />}
+          title="Cleaner mobile flow"
+          body="Cards stack with more breathing room, controls are easier to hit, and the sidebar behaves better on phones."
+        />
+        <HighlightCard
+          icon={<TrendingUp size={18} />}
+          title="Better focus"
+          body="Latest results, recent ideas, and action buttons now read as one guided workflow instead of separate boxes."
+        />
+      </div>
     </div>
   );
 }
@@ -450,8 +538,18 @@ function ResellTab({
   onDashboardRefresh: () => void;
 }) {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-5">
+      <Card className="overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.76))]">
+        <SectionEyebrow>Resell workspace</SectionEyebrow>
+        <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--text-1)] sm:text-4xl">
+          Tools and chat now feel like part of the same flow.
+        </h2>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--text-2)] sm:text-base">
+          Start with a scan when you need product clarity, then keep the momentum with focused AI chat for pricing, sourcing, or listing strategy.
+        </p>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-2">
         <ToolCard
           title="Image to Analysis"
           body="Upload a product image to identify the item, estimate its value, get a suggested resale price, and generate a short ad script."
@@ -625,27 +723,29 @@ function ResellChatPanel({
   }
 
   return (
-    <Card className="bg-gradient-to-br from-[#f7fcff] to-white">
+    <Card className="relative overflow-hidden">
       {busy ? <ResellChatLoadingOverlay status={loadingStatus} /> : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <SectionEyebrow>Resell chat</SectionEyebrow>
-          <h3 className="mt-3 text-2xl font-black text-slate-900">Ask resale questions like a focused GPT</h3>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+          <h3 className="mt-3 font-display text-2xl font-semibold tracking-[-0.03em] text-[var(--text-1)] sm:text-3xl">
+            Ask resale questions like a focused GPT.
+          </h3>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-2)] sm:text-base">
             This AI stays locked on reselling, pricing, product picks, listing strategy, and supplier guidance. Each question costs between 1 and 25 credits depending on difficulty. Image attachments add 5 credits.
           </p>
         </div>
-        <div className="rounded-[1.4rem] border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-slate-700">
+        <div className="rounded-full border border-[color:var(--line)] bg-[var(--surface-soft)] px-4 py-3 text-sm font-semibold text-[var(--text-2)]">
           Current credits: {profile.credits}
         </div>
       </div>
 
-      <div className="mt-6 rounded-[1.8rem] border border-slate-200 bg-white p-4 shadow-[0_12px_30px_rgba(120,142,168,0.06)] sm:p-5">
+      <div className="surface-soft mt-6 rounded-[1.8rem] p-4 shadow-[0_14px_35px_rgba(15,23,42,0.05)] sm:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex h-12 w-12 shrink-0 items-center justify-center self-start rounded-2xl border border-sky-200 bg-sky-50 text-sky-700 transition hover:bg-sky-100"
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center self-start rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)] transition hover:translate-y-[-1px]"
             aria-label="Add image"
           >
             <Plus size={18} />
@@ -657,7 +757,7 @@ function ResellChatPanel({
               onChange={(event) => setQuestion(event.target.value)}
               rows={4}
               placeholder="Example: Is this product good for reselling on TikTok Shop, and how would you price it?"
-              className="w-full rounded-[1.4rem] border border-slate-200 bg-slate-50 px-4 py-4 text-slate-900 outline-none transition focus:border-sky-300"
+              className="w-full rounded-[1.5rem] border border-[color:var(--line)] bg-[var(--surface-strong)] px-4 py-4 text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-[var(--accent)]"
             />
             <input
               ref={fileInputRef}
@@ -669,18 +769,18 @@ function ResellChatPanel({
 
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
               {attachment ? (
-                <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-slate-700">
-                  <ImageUp size={14} />
+                <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-[color:var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--text-2)]">
+                  <ImageUp size={14} className="text-[var(--accent)]" />
                   <span className="truncate">{attachment.name} (+5 credits)</span>
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--text-3)]">
                   Max 6 MB, max 3000x3000
                 </div>
               )}
 
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-2 text-xs font-semibold text-slate-700">
-                <CircleHelp size={14} />
+              <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--text-2)]">
+                <CircleHelp size={14} className="text-[var(--accent)]" />
                 Dynamic cost: 1-25 credits
               </div>
             </div>
@@ -692,7 +792,7 @@ function ResellChatPanel({
             type="button"
             onClick={() => void handleSubmit()}
             disabled={busy}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--text-1)] px-5 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {busy ? <LoaderCircle className="animate-spin" size={16} /> : <MessageSquareText size={16} />}
             Ask AI
@@ -701,7 +801,7 @@ function ResellChatPanel({
       </div>
 
       {message ? (
-        <div className="mt-4 rounded-[1.3rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        <div className="surface-soft mt-4 rounded-[1.35rem] px-4 py-3 text-sm leading-7 text-[var(--text-2)]">
           {message}
         </div>
       ) : null}
@@ -712,23 +812,23 @@ function ResellChatPanel({
             <div
               key={chat.id}
               ref={index === 0 ? latestAnswerRef : null}
-              className="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(120,142,168,0.05)]"
+              className="surface-soft rounded-[1.7rem] p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-600">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
                   {formatDate(chat.created_at)}
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--line)] bg-[var(--surface-strong)] px-3 py-1 text-xs font-semibold text-[var(--text-2)]">
                   {chat.total_cost} credits used
                 </div>
               </div>
-              <div className="mt-4 rounded-[1.2rem] border border-slate-200 bg-slate-50 p-4">
-                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Your question</div>
-                <div className="mt-2 text-sm leading-7 text-slate-800">{chat.question}</div>
+              <div className="mt-4 rounded-[1.25rem] border border-[color:var(--line)] bg-[var(--surface-strong)] p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-3)]">Your question</div>
+                <div className="mt-2 text-sm leading-7 text-[var(--text-1)]">{chat.question}</div>
               </div>
-              <div className="mt-3 rounded-[1.2rem] border border-sky-100 bg-sky-50 p-4">
-                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">AI answer</div>
-                <div className="mt-2 space-y-3 text-sm leading-7 text-slate-800">
+              <div className="mt-3 rounded-[1.25rem] border border-[color:var(--line)] bg-[var(--surface-strong)] p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">AI answer</div>
+                <div className="mt-2 space-y-3 text-sm leading-7 text-[var(--text-1)]">
                   <FormattedChatAnswer answer={chat.answer} />
                 </div>
               </div>
@@ -744,29 +844,32 @@ function ResellChatPanel({
 
 function ResellChatLoadingOverlay({ status }: { status: string }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(244,251,255,0.82)] backdrop-blur-md">
-      <div className="flex w-[min(92vw,420px)] flex-col items-center rounded-[2rem] border border-sky-100 bg-white/94 px-8 py-10 text-center shadow-[0_30px_100px_rgba(93,146,184,0.18)]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(6,10,22,0.32)] backdrop-blur-md">
+      <div className="surface-strong relative flex w-[min(92vw,430px)] flex-col items-center overflow-hidden rounded-[2.1rem] px-8 py-10 text-center shadow-[0_30px_110px_rgba(15,23,42,0.18)]">
+        <div className="float-orb absolute -left-10 top-10 h-24 w-24 rounded-full bg-[var(--accent-soft)] blur-3xl" />
+        <div className="float-orb-delayed absolute -right-6 bottom-8 h-28 w-28 rounded-full bg-[var(--sky-soft)] blur-3xl" />
+
         <div className="relative mb-8 h-28 w-28">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2.3, ease: 'linear' }}
-            className="absolute inset-0 rounded-full border-[6px] border-transparent border-t-sky-400 border-r-cyan-300"
+            className="absolute inset-0 rounded-full border-[6px] border-transparent border-t-orange-400 border-r-amber-300"
           />
           <motion.div
             animate={{ rotate: -360 }}
             transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.7, ease: 'linear' }}
-            className="absolute inset-3 rounded-full border-[5px] border-transparent border-b-sky-500 border-l-blue-300"
+            className="absolute inset-3 rounded-full border-[5px] border-transparent border-b-sky-500 border-l-cyan-300"
           />
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.2, ease: 'linear' }}
-            className="absolute inset-[26px] rounded-full border-[4px] border-transparent border-t-cyan-400"
+            className="absolute inset-[26px] rounded-full border-[4px] border-transparent border-t-amber-400"
           />
-          <div className="absolute inset-[34px] rounded-full bg-gradient-to-br from-sky-100 to-cyan-50 shadow-inner" />
+          <div className="absolute inset-[34px] rounded-full bg-gradient-to-br from-orange-100 to-sky-50 shadow-inner" />
         </div>
 
-        <div className="text-lg font-black text-slate-900">Resell AI is working</div>
-        <div className="mt-3 text-sm font-medium text-slate-600">{status}</div>
+        <div className="font-display text-xl font-semibold text-[var(--text-1)]">Resell AI is working</div>
+        <div className="mt-3 text-sm font-medium text-[var(--text-2)]">{status}</div>
       </div>
     </div>
   );
@@ -779,18 +882,18 @@ function FormattedChatAnswer({ answer }: { answer: string }) {
     <>
       {lines.map((line, index) => {
         const trimmed = line.trim();
-        const isBullet = trimmed.startsWith('- ') || trimmed.startsWith('• ');
+        const isBullet = trimmed.startsWith('- ') || trimmed.startsWith('â€˘ ');
         const content = isBullet ? trimmed.slice(2).trim() : trimmed;
 
         return (
           <div
             key={`${index}-${trimmed}`}
             className={cn(
-              'text-sm leading-7 text-slate-800',
-              isBullet && 'rounded-[1rem] border border-sky-100 bg-white/70 px-3 py-2',
+              'text-sm leading-7 text-[var(--text-1)]',
+              isBullet && 'rounded-[1rem] border border-[color:var(--line)] bg-[var(--surface-soft)] px-3 py-2',
             )}
           >
-            {isBullet ? <span className="mr-2 text-sky-600">•</span> : null}
+            {isBullet ? <span className="mr-2 text-[var(--accent)]">â€˘</span> : null}
             <InlineBoldText text={content} />
           </div>
         );
@@ -809,7 +912,7 @@ function InlineBoldText({ text }: { text: string }) {
           return (
             <span
               key={`${part}-${index}`}
-              className="rounded-md bg-sky-100 px-1.5 py-0.5 font-bold text-slate-900"
+              className="rounded-md bg-[var(--accent-soft)] px-1.5 py-0.5 font-bold text-[var(--text-1)]"
             >
               {part.slice(2, -2)}
             </span>
@@ -830,43 +933,45 @@ function PlansTab({
   onCheckout: (id: string) => void;
 }) {
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-[#f5fbff] to-white">
+    <div className="space-y-5">
+      <Card className="overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.76))]">
         <SectionEyebrow>Credits</SectionEyebrow>
-        <h2 className="mt-3 text-3xl font-black text-slate-900">Simple one-time credit packs</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
+        <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--text-1)] sm:text-4xl">
+          Simple one-time credit packs.
+        </h2>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--text-2)] sm:text-base">
           No subscription. Buy credits once, use them whenever you want, and top up only when you need more resale research.
         </p>
       </Card>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {CREDIT_PACKS.map((pack) => (
           <div
             key={pack.id}
             className={cn(
-              'flex min-h-[210px] flex-col justify-between rounded-[1.7rem] border p-4 shadow-[0_18px_44px_rgba(120,142,168,0.10)] sm:min-h-[240px] sm:rounded-[1.9rem] sm:p-5 lg:min-h-[260px]',
+              'surface-strong flex min-h-[240px] flex-col justify-between rounded-[1.9rem] p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]',
               pack.id === 'pack_500'
-                ? 'border-cyan-200 bg-gradient-to-br from-cyan-50 to-white'
+                ? 'bg-[linear-gradient(180deg,rgba(251,146,60,0.12),rgba(255,255,255,0.90))]'
                 : pack.id === 'pack_150'
-                  ? 'border-sky-200 bg-gradient-to-br from-sky-50 to-white'
-                  : 'border-slate-200 bg-white',
+                  ? 'bg-[linear-gradient(180deg,rgba(56,189,248,0.12),rgba(255,255,255,0.90))]'
+                  : '',
             )}
           >
             <div>
               {pack.badge ? (
-                <div className="mb-3 inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700 sm:mb-4 sm:px-3">
+                <div className="mb-4 inline-flex rounded-full border border-[color:var(--line)] bg-[var(--surface-soft)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">
                   {pack.badge}
                 </div>
               ) : null}
-              <div className="text-lg font-black text-slate-900 sm:text-2xl">{pack.title}</div>
-              <div className="mt-1.5 text-base font-semibold text-slate-700 sm:mt-2 sm:text-lg">{pack.priceLabel}</div>
-              <div className="mt-2 text-xs leading-5 text-slate-600 sm:mt-3 sm:text-sm sm:leading-6">{pack.description}</div>
+              <div className="font-display text-2xl font-semibold text-[var(--text-1)]">{pack.title}</div>
+              <div className="mt-2 text-lg font-semibold text-[var(--text-2)]">{pack.priceLabel}</div>
+              <div className="mt-3 text-sm leading-7 text-[var(--text-2)]">{pack.description}</div>
             </div>
             <button
               type="button"
               onClick={() => onCheckout(pack.id)}
               disabled={busy}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 sm:mt-5"
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--text-1)] px-4 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Buy credits
             </button>
@@ -885,10 +990,12 @@ function ProfileTab({
   analyses: AnalysisRecord[];
 }) {
   return (
-    <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+    <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
       <Card>
         <SectionEyebrow>Profile</SectionEyebrow>
-        <h2 className="mt-3 text-2xl font-black text-slate-900">Account details</h2>
+        <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.03em] text-[var(--text-1)]">
+          Account details
+        </h2>
         <div className="mt-6 space-y-3">
           <InfoLine label="Email" value={profile.email} />
           <InfoLine label="Credits" value={String(profile.credits)} />
@@ -899,8 +1006,10 @@ function ProfileTab({
 
       <Card>
         <SectionEyebrow>Progress</SectionEyebrow>
-        <h3 className="mt-3 text-2xl font-black text-slate-900">How ready you are to research more products</h3>
-        <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+        <h3 className="mt-3 font-display text-3xl font-semibold tracking-[-0.03em] text-[var(--text-1)]">
+          How ready you are to research more products
+        </h3>
+        <div className="surface-soft mt-6 rounded-[1.8rem] p-5">
           <BarsChart
             items={[
               { label: 'Credits available', value: Math.min(100, profile.credits) },
@@ -916,11 +1025,13 @@ function ProfileTab({
 
 function AboutTab() {
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-      <Card className="bg-gradient-to-br from-[#f5fbff] to-white">
+    <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+      <Card className="overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.76))]">
         <SectionEyebrow>About</SectionEyebrow>
-        <h2 className="mt-3 text-3xl font-black text-slate-900">What Scan Sell AI does</h2>
-        <div className="mt-6 space-y-4 text-sm leading-7 text-slate-600">
+        <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--text-1)] sm:text-4xl">
+          What Scan Sell AI actually helps you do.
+        </h2>
+        <div className="mt-6 space-y-4 text-sm leading-7 text-[var(--text-2)]">
           <AboutRow
             title="Identify product ideas"
             body="Use the image tool when you have a photo or screenshot and want the AI to identify the product."
@@ -938,8 +1049,10 @@ function AboutTab() {
 
       <Card>
         <SectionEyebrow>Beginner-friendly</SectionEyebrow>
-        <h3 className="mt-3 text-2xl font-black text-slate-900">Made for simple resale decisions</h3>
-        <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+        <h3 className="mt-3 font-display text-3xl font-semibold tracking-[-0.03em] text-[var(--text-1)]">
+          Made for simple resale decisions
+        </h3>
+        <div className="surface-soft mt-6 rounded-[1.8rem] p-5">
           <BarsChart
             items={[
               { label: 'Product clarity', value: 91 },
@@ -948,10 +1061,10 @@ function AboutTab() {
             ]}
           />
         </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <MetricCard label="Step 1" value="Pick tool" />
-          <MetricCard label="Step 2" value="Get estimate" />
-          <MetricCard label="Step 3" value="List product" />
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <MetricCard icon={<Sparkles size={18} />} label="Step 1" value="Pick tool" />
+          <MetricCard icon={<TrendingUp size={18} />} label="Step 2" value="Get estimate" />
+          <MetricCard icon={<ArrowRight size={18} />} label="Step 3" value="List product" />
         </div>
       </Card>
     </div>
@@ -972,18 +1085,18 @@ function ToolCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="rounded-[1.7rem] border border-sky-100 bg-white p-5 shadow-[0_20px_60px_rgba(117,149,176,0.08)] sm:rounded-[2rem] sm:p-6">
+    <div className="surface-strong rounded-[2rem] p-5 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:p-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-600">{icon}</div>
-        <div className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)]">{icon}</div>
+        <div className="rounded-full border border-[color:var(--line)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--text-2)]">
           {badge}
         </div>
       </div>
-      <div className="mt-4 text-xl font-black text-slate-900 sm:mt-5 sm:text-2xl">{title}</div>
-      <div className="mt-2 text-sm leading-6 text-slate-600 sm:mt-3 sm:leading-7">{body}</div>
+      <div className="mt-5 font-display text-2xl font-semibold text-[var(--text-1)]">{title}</div>
+      <div className="mt-3 text-sm leading-7 text-[var(--text-2)]">{body}</div>
       <Link
         href={href}
-        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:mt-5 sm:w-auto"
+        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--text-1)] px-4 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] hover:bg-black/90 sm:w-auto"
       >
         Open tool
       </Link>
@@ -1005,11 +1118,14 @@ function InfoCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="rounded-[1.7rem] border border-slate-200 bg-white p-5">
-      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-600">{icon}</div>
-      <div className="text-lg font-black text-slate-900">{title}</div>
-      <div className="mt-2 text-sm leading-6 text-slate-600">{body}</div>
-      <Link href={href} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-sky-700 hover:text-sky-800">
+    <div className="surface-soft rounded-[1.7rem] p-5">
+      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)]">{icon}</div>
+      <div className="font-display text-xl font-semibold text-[var(--text-1)]">{title}</div>
+      <div className="mt-3 text-sm leading-7 text-[var(--text-2)]">{body}</div>
+      <Link
+        href={href}
+        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent-strong)] transition hover:text-[var(--accent)]"
+      >
         {cta}
         <ExternalLink size={14} />
       </Link>
@@ -1019,9 +1135,29 @@ function InfoCard({
 
 function AboutRow({ title, body }: { title: string; body: string }) {
   return (
-    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-4">
-      <div className="font-semibold text-slate-900">{title}</div>
-      <div className="mt-1 text-sm leading-6 text-slate-600">{body}</div>
+    <div className="surface-soft rounded-[1.5rem] p-4">
+      <div className="font-semibold text-[var(--text-1)]">{title}</div>
+      <div className="mt-2 text-sm leading-7 text-[var(--text-2)]">{body}</div>
+    </div>
+  );
+}
+
+function HighlightCard({
+  icon,
+  title,
+  body,
+}: {
+  icon: ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="surface-strong rounded-[1.8rem] p-5 shadow-[0_18px_48px_rgba(15,23,42,0.07)]">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)]">
+        {icon}
+      </div>
+      <h3 className="font-display text-xl font-semibold text-[var(--text-1)]">{title}</h3>
+      <p className="mt-3 text-sm leading-7 text-[var(--text-2)]">{body}</p>
     </div>
   );
 }
@@ -1032,12 +1168,12 @@ function BarsChart({ items }: { items: { label: string; value: number }[] }) {
       {items.map((item) => (
         <div key={item.label}>
           <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="font-medium text-slate-700">{item.label}</span>
-            <span className="font-semibold text-slate-500">{item.value}%</span>
+            <span className="font-medium text-[var(--text-2)]">{item.label}</span>
+            <span className="font-semibold text-[var(--text-3)]">{item.value}%</span>
           </div>
-          <div className="h-3 rounded-full bg-slate-200">
+          <div className="h-3 rounded-full bg-[rgba(148,163,184,0.18)]">
             <div
-              className="h-3 rounded-full bg-gradient-to-r from-sky-500 to-cyan-300"
+              className="h-3 rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-sky-400"
               style={{ width: `${Math.max(8, Math.min(100, item.value))}%` }}
             />
           </div>
@@ -1053,21 +1189,21 @@ function MiniBars({ items }: { items: { label: string; value: number }[] }) {
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
+    <div className="surface-soft rounded-[1.5rem] p-5 text-sm leading-7 text-[var(--text-2)]">
       {text}
     </div>
   );
 }
 
 function SectionEyebrow({ children }: { children: ReactNode }) {
-  return <div className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-600">{children}</div>;
+  return <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">{children}</div>;
 }
 
 function Card({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <section
       className={cn(
-        'rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_18px_60px_rgba(120,142,168,0.08)] md:p-6',
+        'surface-strong rounded-[2.1rem] p-5 shadow-[0_22px_74px_rgba(15,23,42,0.08)] md:p-6',
         className,
       )}
     >
@@ -1076,20 +1212,29 @@ function Card({ children, className }: { children: ReactNode; className?: string
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function MetricCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="rounded-[1.5rem] border border-sky-100 bg-sky-50 px-5 py-4">
-      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{label}</div>
-      <div className="mt-2 break-words text-2xl font-black capitalize text-slate-900">{value}</div>
+    <div className="surface-soft rounded-[1.5rem] px-5 py-4">
+      <div className="flex items-center gap-2 text-[var(--accent-strong)]">{icon}</div>
+      <div className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-3)]">{label}</div>
+      <div className="mt-2 break-words font-display text-2xl font-semibold text-[var(--text-1)]">{value}</div>
     </div>
   );
 }
 
 function InfoLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-[1.2rem] bg-slate-50 px-4 py-3">
-      <div className="text-sm text-slate-500">{label}</div>
-      <div className="max-w-[55%] break-words text-right text-sm font-semibold capitalize text-slate-800">{value}</div>
+    <div className="surface-soft flex items-center justify-between gap-4 rounded-[1.25rem] px-4 py-3">
+      <div className="text-sm text-[var(--text-3)]">{label}</div>
+      <div className="max-w-[58%] break-words text-right text-sm font-semibold text-[var(--text-1)]">{value}</div>
     </div>
   );
 }
