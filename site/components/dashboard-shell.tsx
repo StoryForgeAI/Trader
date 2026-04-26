@@ -2,6 +2,7 @@
 
 import {
   BadgeDollarSign,
+  CircleHelp,
   CreditCard,
   ExternalLink,
   ImageUp,
@@ -10,20 +11,28 @@ import {
   LoaderCircle,
   LogOut,
   Menu,
+  MessageSquareText,
   PackageSearch,
+  Plus,
   SearchCheck,
   UserRound,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { ThemeToggle } from '@/components/theme-toggle';
 import { CREDIT_PACKS, IMAGE_ANALYSIS_COST, TEXT_ANALYSIS_COST } from '@/lib/catalog';
 import { supabase } from '@/lib/supabase';
-import type { AnalysisRecord, DashboardData, ResellAnalysis, UserProfile } from '@/lib/types';
+import type {
+  AnalysisRecord,
+  DashboardData,
+  ResellAnalysis,
+  ResellChatRecord,
+  UserProfile,
+} from '@/lib/types';
 import { cn, formatDate } from '@/lib/utils';
 
 type ActiveTab = 'dashboard' | 'resell' | 'plans' | 'profile' | 'about';
@@ -78,9 +87,10 @@ export function DashboardShell() {
       }
 
       const userId = session.user.id;
-      const [{ data: profile, error: profileError }, { data: analyses }] = await Promise.all([
+      const [{ data: profile, error: profileError }, { data: analyses }, { data: resellChats }] = await Promise.all([
         supabase.from('users').select('*').eq('id', userId).single(),
         supabase.from('analyses').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(8),
+        supabase.from('resell_chats').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(24),
       ]);
 
       if (profileError) throw profileError;
@@ -89,6 +99,7 @@ export function DashboardShell() {
         profile: profile as UserProfile,
         subscription: null,
         analyses: (analyses as AnalysisRecord[]) ?? [],
+        resellChats: (resellChats as ResellChatRecord[]) ?? [],
       });
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not load your dashboard.');
@@ -167,7 +178,13 @@ export function DashboardShell() {
             <DashboardTab profile={dashboard.profile} analyses={dashboard.analyses} latestAnalysis={latestAnalysis} />
           ) : null}
 
-          {activeTab === 'resell' ? <ResellTab /> : null}
+          {activeTab === 'resell' ? (
+            <ResellTab
+              profile={dashboard.profile}
+              chats={dashboard.resellChats ?? []}
+              onDashboardRefresh={() => void loadDashboard()}
+            />
+          ) : null}
 
           {activeTab === 'plans' ? <PlansTab busy={busy} onCheckout={(id) => void handleCheckout(id)} /> : null}
 
@@ -422,24 +439,262 @@ function DashboardTab({
   );
 }
 
-function ResellTab() {
+function ResellTab({
+  profile,
+  chats,
+  onDashboardRefresh,
+}: {
+  profile: UserProfile;
+  chats: ResellChatRecord[];
+  onDashboardRefresh: () => void;
+}) {
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <ToolCard
-        title="Image to Analysis"
-        body="Upload a product image to identify the item, estimate its value, get a suggested resale price, and generate a short ad script."
-        href="/imagetoanalisis"
-        badge={`${IMAGE_ANALYSIS_COST} credits`}
-        icon={<ImageUp size={20} />}
-      />
-      <ToolCard
-        title="Text to Analysis"
-        body="Type the product name or a short product description to get a lower-cost resale estimate without using image recognition."
-        href="/texttoanalisis"
-        badge={`${TEXT_ANALYSIS_COST} credits`}
-        icon={<SearchCheck size={20} />}
-      />
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ToolCard
+          title="Image to Analysis"
+          body="Upload a product image to identify the item, estimate its value, get a suggested resale price, and generate a short ad script."
+          href="/imagetoanalisis"
+          badge={`${IMAGE_ANALYSIS_COST} credits`}
+          icon={<ImageUp size={20} />}
+        />
+        <ToolCard
+          title="Text to Analysis"
+          body="Type the product name or a short product description to get a lower-cost resale estimate without using image recognition."
+          href="/texttoanalisis"
+          badge={`${TEXT_ANALYSIS_COST} credits`}
+          icon={<SearchCheck size={20} />}
+        />
+      </div>
+
+      <ResellChatPanel profile={profile} chats={chats} onDashboardRefresh={onDashboardRefresh} />
     </div>
+  );
+}
+
+function ResellChatPanel({
+  profile,
+  chats,
+  onDashboardRefresh,
+}: {
+  profile: UserProfile;
+  chats: ResellChatRecord[];
+  onDashboardRefresh: () => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [question, setQuestion] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [attachment, setAttachment] = useState<{ file: File; previewUrl: string; name: string } | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (attachment?.previewUrl) {
+        URL.revokeObjectURL(attachment.previewUrl);
+      }
+    };
+  }, [attachment]);
+
+  async function validateAndSetAttachment(file: File | null) {
+    if (!file) return;
+
+    const confirmed = window.confirm('Are you sure you want to upload this image? It costs 5 credits.');
+    if (!confirmed) return;
+
+    const maxSizeBytes = 6 * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+      setMessage('The image is too large. Maximum size is 6 MB.');
+      return;
+    }
+
+    const dimensions = await readImageDimensions(file);
+    if (dimensions.width > 3000 || dimensions.height > 3000) {
+      setMessage('The image resolution is too high. Maximum resolution is 3000x3000.');
+      return;
+    }
+
+    if (attachment?.previewUrl) {
+      URL.revokeObjectURL(attachment.previewUrl);
+    }
+
+    setAttachment({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      name: file.name,
+    });
+    setMessage('Image attached. It will add 5 credits to this chat question.');
+  }
+
+  async function handleSubmit() {
+    if (!question.trim()) {
+      setMessage('Please type your resale question first.');
+      return;
+    }
+
+    setBusy(true);
+    setMessage(null);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const user = session?.user ?? null;
+      if (!session?.access_token || !user) {
+        window.location.href = '/auth';
+        return;
+      }
+
+      let attachmentPath: string | null = null;
+      if (attachment?.file) {
+        const safeName = attachment.file.name.replace(/\s+/g, '-');
+        attachmentPath = `${user.id}/chat-${Date.now()}-${safeName}`;
+        const { error: uploadError } = await supabase.storage.from('uploads').upload(attachmentPath, attachment.file, {
+          upsert: false,
+          contentType: attachment.file.type || 'image/png',
+        });
+        if (uploadError) throw uploadError;
+      }
+
+      const response = await fetch('/api/resell/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          question: question.trim(),
+          attachmentPath,
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(typeof data?.error === 'string' ? data.error : 'Chat request failed.');
+      }
+
+      setQuestion('');
+      if (attachment?.previewUrl) {
+        URL.revokeObjectURL(attachment.previewUrl);
+      }
+      setAttachment(null);
+      setMessage(`Answer ready. ${data.totalCost} credits were used for this chat.`);
+      onDashboardRefresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Chat request failed.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card className="bg-gradient-to-br from-[#f7fcff] to-white">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <SectionEyebrow>Resell chat</SectionEyebrow>
+          <h3 className="mt-3 text-2xl font-black text-slate-900">Ask resale questions like a focused GPT</h3>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+            This AI stays locked on reselling, pricing, product picks, listing strategy, and supplier guidance. Each question costs between 1 and 25 credits depending on difficulty. Image attachments add 5 credits.
+          </p>
+        </div>
+        <div className="rounded-[1.4rem] border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-slate-700">
+          Current credits: {profile.credits}
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-[1.8rem] border border-slate-200 bg-white p-4 shadow-[0_12px_30px_rgba(120,142,168,0.06)]">
+        <div className="flex items-start gap-3">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-sky-200 bg-sky-50 text-sky-700 transition hover:bg-sky-100"
+            aria-label="Add image"
+          >
+            <Plus size={18} />
+          </button>
+
+          <div className="min-w-0 flex-1">
+            <textarea
+              value={question}
+              onChange={(event) => setQuestion(event.target.value)}
+              rows={4}
+              placeholder="Example: Is this product good for reselling on TikTok Shop, and how would you price it?"
+              className="w-full rounded-[1.4rem] border border-slate-200 bg-slate-50 px-4 py-4 text-slate-900 outline-none transition focus:border-sky-300"
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => void validateAndSetAttachment(event.target.files?.[0] ?? null)}
+            />
+
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              {attachment ? (
+                <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-slate-700">
+                  <ImageUp size={14} />
+                  {attachment.name} (+5 credits)
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+                  Max 6 MB, max 3000x3000
+                </div>
+              )}
+
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-2 text-xs font-semibold text-slate-700">
+                <CircleHelp size={14} />
+                Dynamic cost: 1-25 credits
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={() => void handleSubmit()}
+            disabled={busy}
+            className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy ? <LoaderCircle className="animate-spin" size={16} /> : <MessageSquareText size={16} />}
+            Ask AI
+          </button>
+        </div>
+      </div>
+
+      {message ? (
+        <div className="mt-4 rounded-[1.3rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          {message}
+        </div>
+      ) : null}
+
+      <div className="mt-6 space-y-4">
+        {chats.length ? (
+          chats.map((chat) => (
+            <div key={chat.id} className="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(120,142,168,0.05)]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-600">
+                  {formatDate(chat.created_at)}
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {chat.total_cost} credits used
+                </div>
+              </div>
+              <div className="mt-4 rounded-[1.2rem] border border-slate-200 bg-slate-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Your question</div>
+                <div className="mt-2 text-sm leading-7 text-slate-800">{chat.question}</div>
+              </div>
+              <div className="mt-3 rounded-[1.2rem] border border-sky-100 bg-sky-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">AI answer</div>
+                <div className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-800">{chat.answer}</div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <EmptyState text="Your resale chat answers will appear here with the original question and the date." />
+        )}
+      </div>
+    </Card>
   );
 }
 
@@ -711,4 +966,24 @@ function InfoLine({ label, value }: { label: string; value: string }) {
       <div className="max-w-[55%] break-words text-right text-sm font-semibold capitalize text-slate-800">{value}</div>
     </div>
   );
+}
+
+function readImageDimensions(file: File) {
+  return new Promise<{ width: number; height: number }>((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+
+    image.onload = () => {
+      const result = { width: image.width, height: image.height };
+      URL.revokeObjectURL(objectUrl);
+      resolve(result);
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Could not read image dimensions.'));
+    };
+
+    image.src = objectUrl;
+  });
 }

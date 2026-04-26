@@ -43,10 +43,22 @@ export type AnalysisRecord = {
   created_at: string;
 };
 
+export type ResellChatRecord = {
+  id: string;
+  question: string;
+  answer: string;
+  credit_cost: number;
+  attachment_cost: number;
+  total_cost: number;
+  attachment_url: string | null;
+  created_at: string;
+};
+
 export type DashboardData = {
   profile: UserProfile;
   subscription: SubscriptionInfo | null;
   analyses: AnalysisRecord[];
+  resellChats?: ResellChatRecord[];
 };
 
 export type CheckoutProduct = {
