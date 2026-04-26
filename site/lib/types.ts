@@ -1,8 +1,5 @@
 export type ThemeMode = 'dark' | 'light';
 
-export type MarketSentiment = 'bullish' | 'bearish' | 'neutral';
-export type RiskLevel = 'low' | 'medium' | 'high';
-
 export type UserProfile = {
   id: string;
   email: string;
@@ -21,24 +18,28 @@ export type SubscriptionInfo = {
   last_credit_refill_at: string | null;
 };
 
-export type TradeAnalysis = {
-  marketSentiment: MarketSentiment;
-  entrySuggestion: string;
-  exitSuggestion: string;
-  riskLevel: RiskLevel;
-  reasoning: string;
+export type ResellAnalysis = {
+  productName: string;
+  category: string;
+  productSummary: string;
+  estimatedPrice: string;
+  recommendedSellPrice: string;
+  expectedProfitRange: string;
+  demandLevel: 'low' | 'medium' | 'high';
+  conditionNotes: string;
+  keySellingPoints: string[];
+  adScript: string;
+  aliExpressSearchUrl: string;
   confidenceScore: number;
-  whatIsHappening: string;
-  whenToBuy: string;
-  whenToSell: string;
-  keySignals: string[];
-  detectedIndicators: string[];
+  demandScore: number;
+  marginScore: number;
+  resaleSpeedScore: number;
 };
 
 export type AnalysisRecord = {
   id: string;
   image_url: string;
-  result: TradeAnalysis;
+  result: ResellAnalysis;
   created_at: string;
 };
 
@@ -53,5 +54,6 @@ export type CheckoutProduct = {
   title: string;
   priceLabel: string;
   description: string;
-  mode: 'payment' | 'subscription';
+  mode: 'payment';
+  badge?: string;
 };

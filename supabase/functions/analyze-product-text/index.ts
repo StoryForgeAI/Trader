@@ -75,9 +75,9 @@ Deno.serve(async (request) => {
       });
     }
 
-    const { storagePath } = await request.json();
-    if (!storagePath) {
-      return new Response(JSON.stringify({ error: 'storagePath is required' }), {
+    const { productText } = await request.json();
+    if (!productText || typeof productText !== 'string') {
+      return new Response(JSON.stringify({ error: 'productText is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -89,19 +89,11 @@ Deno.serve(async (request) => {
     } = await supabase.from('users').select('credits').eq('id', user.id).single();
 
     if (profileError) throw profileError;
-    if ((profile?.credits ?? 0) < 10) {
-      return new Response(JSON.stringify({ error: 'You need 10 credits for image analysis.' }), {
+    if ((profile?.credits ?? 0) < 5) {
+      return new Response(JSON.stringify({ error: 'You need 5 credits for text analysis.' }), {
         status: 402,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
-    }
-
-    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-      .from('uploads')
-      .createSignedUrl(storagePath, 60 * 15);
-
-    if (signedUrlError || !signedUrlData?.signedUrl) {
-      throw signedUrlError ?? new Error('Could not create signed URL');
     }
 
     const openAiResponse = await fetch('https://api.openai.com/v1/responses', {
@@ -119,7 +111,7 @@ Deno.serve(async (request) => {
               {
                 type: 'input_text',
                 text:
-                  'You are a resale product analyst. Identify the product, estimate what it can realistically sell for, suggest a stronger selling price, generate an ad script for TikTok or YouTube Shorts, and produce an AliExpress search URL. Stay practical and concise.',
+                  'You are a resale product analyst. The user gives you only a product name or short product description. Estimate a resale plan, a realistic sell price, profit range, and a short ad script for TikTok or YouTube Shorts. Return only structured JSON.',
               },
             ],
           },
@@ -128,12 +120,7 @@ Deno.serve(async (request) => {
             content: [
               {
                 type: 'input_text',
-                text:
-                  'Analyze this product image for online reselling. Return only structured JSON. Assume the user wants to resell the item quickly with a good margin.',
-              },
-              {
-                type: 'input_image',
-                image_url: signedUrlData.signedUrl,
+                text: `Analyze this product idea for reselling: ${productText}`,
               },
             ],
           },
@@ -171,9 +158,9 @@ Deno.serve(async (request) => {
       'consume_credits_for_analysis',
       {
         p_user_id: user.id,
-        p_image_url: storagePath,
+        p_image_url: `text:${productText}`,
         p_result: analysis,
-        p_cost: 10,
+        p_cost: 5,
       },
     );
 

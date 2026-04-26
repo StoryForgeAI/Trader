@@ -11,24 +11,24 @@ html[data-theme='dark'] {
 }
 
 body {
-  @apply bg-[#fffaf4] text-stone-900 antialiased;
+  @apply bg-[#f4fbff] text-slate-900 antialiased;
   background-image:
-    radial-gradient(circle at top left, rgba(249, 115, 22, 0.10), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(245, 158, 11, 0.06), transparent 28%),
-    linear-gradient(180deg, #fffaf4 0%, #f8eddc 52%, #fffaf5 100%);
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.10), transparent 28%),
+    linear-gradient(180deg, #f6fcff 0%, #eaf7ff 52%, #f7fdff 100%);
 }
 
 html[data-theme='dark'] body {
   @apply text-white;
   background-image:
-    radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(255, 196, 120, 0.12), transparent 28%),
-    linear-gradient(180deg, #090909 0%, #120c08 48%, #090909 100%);
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.12), transparent 28%),
+    linear-gradient(180deg, #07121a 0%, #081722 48%, #07121a 100%);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -37,12 +37,12 @@ html[data-theme='dark'] body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(148, 163, 184, 0.45);
   border-radius: 999px;
 }
 
 .glass {
-  @apply rounded-3xl border border-stone-200 bg-white/80 backdrop-blur-xl;
+  @apply rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl;
 }
 
 html[data-theme='dark'] .glass {

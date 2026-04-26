@@ -17,7 +17,7 @@ export function ThemeToggle() {
   function toggleTheme() {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = nextTheme;
-    localStorage.setItem('tradescope-theme', nextTheme);
+    localStorage.setItem('scan-sell-ai-theme', nextTheme);
     setTheme(nextTheme);
   }
 
@@ -27,8 +27,8 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl border transition ${
         theme === 'dark'
-          ? 'border-white/10 bg-white/5 text-white hover:border-orange-400/50 hover:text-orange-200'
-          : 'border-stone-200 bg-white text-stone-900 hover:border-orange-300 hover:text-orange-600'
+          ? 'border-white/10 bg-white/5 text-white hover:border-sky-400/50 hover:text-sky-200'
+          : 'border-stone-200 bg-white text-stone-900 hover:border-sky-300 hover:text-sky-600'
       }`}
       aria-label="Toggle theme"
     >

@@ -8,12 +8,12 @@ export default function DashboardPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#fffaf4] text-stone-900">
-          Loading TradeScope dashboard...
+        <div className="flex min-h-screen items-center justify-center bg-[#f4fbff] text-slate-900">
+          Loading Scan Sell AI dashboard...
         </div>
       }
     >
-      <div data-dashboard-version="v2-sidebar-layout">
+      <div data-dashboard-version="scan-sell-ai-v1">
         <DashboardShell />
       </div>
     </Suspense>

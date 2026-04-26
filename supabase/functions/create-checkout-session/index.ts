@@ -12,10 +12,6 @@ const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 const siteUrl = Deno.env.get('SITE_URL') ?? 'http://localhost:3000';
 
 const priceMap = {
-  starter: Deno.env.get('STRIPE_PRICE_STARTER') ?? '',
-  pro: Deno.env.get('STRIPE_PRICE_PRO') ?? '',
-  trader: Deno.env.get('STRIPE_PRICE_TRADER') ?? '',
-  money_printer: Deno.env.get('STRIPE_PRICE_MONEY_PRINTER') ?? '',
   pack_50: Deno.env.get('STRIPE_PRICE_PACK_50') ?? '',
   pack_150: Deno.env.get('STRIPE_PRICE_PACK_150') ?? '',
   pack_500: Deno.env.get('STRIPE_PRICE_PACK_500') ?? '',
@@ -54,6 +50,13 @@ Deno.serve(async (request) => {
     const { productId, mode } = await request.json();
     const priceId = priceMap[productId as keyof typeof priceMap];
 
+    if (mode !== 'payment') {
+      return new Response(JSON.stringify({ error: 'Only one-time credit packs are available.' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (!priceId) {
       return new Response(JSON.stringify({ error: 'Missing Stripe price for product' }), {
         status: 400,
@@ -70,7 +73,7 @@ Deno.serve(async (request) => {
       .maybeSingle();
 
     const session = await stripe.checkout.sessions.create({
-      mode,
+      mode: 'payment',
       customer: existingSubscription?.stripe_customer_id ?? undefined,
       customer_email: existingSubscription?.stripe_customer_id ? undefined : user.email ?? undefined,
       line_items: [{ price: priceId, quantity: 1 }],
@@ -80,17 +83,8 @@ Deno.serve(async (request) => {
       metadata: {
         user_id: user.id,
         product_id: productId,
-        mode,
+        mode: 'payment',
       },
-      subscription_data:
-        mode === 'subscription'
-          ? {
-              metadata: {
-                user_id: user.id,
-                product_id: productId,
-              },
-            }
-          : undefined,
     });
 
     return new Response(

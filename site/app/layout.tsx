@@ -7,9 +7,9 @@ import { themeScript } from '@/lib/theme-script';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'TradeScope Trading AI',
+  title: 'Scan Sell AI',
   description:
-    'AI-powered screenshot analysis for crypto, stocks, forex, and trading dashboards.',
+    'AI resale research for product images and product names.',
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en" data-theme="light">
       <body>
         <Script
-          id="tradescope-theme"
+          id="scansell-theme"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeScript }}
         />

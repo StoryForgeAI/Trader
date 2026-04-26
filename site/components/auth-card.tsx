@@ -56,15 +56,15 @@ export function AuthCard() {
 
   return (
     <div>
-      <div className="rounded-[1.75rem] border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-[#fff5e8] p-6">
-        <div className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
+      <div className="rounded-[1.75rem] border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-[#eef9ff] p-6">
+        <div className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-600">
           Account access
         </div>
         <h2 className="mt-3 text-3xl font-black text-stone-900">
           {mode === 'signin' ? 'Welcome back' : 'Create your account'}
         </h2>
         <p className="mt-3 text-sm leading-7 text-stone-600">
-          Sign in to open your trading dashboard, saved chart analyses, plan details, and credit balance.
+          Sign in to open your resale dashboard, product scans, saved ideas, and credit balance.
         </p>
       </div>
 
@@ -104,7 +104,7 @@ export function AuthCard() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-4 text-stone-900 outline-none transition focus:border-orange-300"
+            className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-4 text-stone-900 outline-none transition focus:border-sky-300"
             placeholder="you@example.com"
           />
         </label>
@@ -120,7 +120,7 @@ export function AuthCard() {
             minLength={6}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-4 text-stone-900 outline-none transition focus:border-orange-300"
+            className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-4 text-stone-900 outline-none transition focus:border-sky-300"
             placeholder="At least 6 characters"
           />
         </label>
@@ -139,7 +139,7 @@ export function AuthCard() {
         type="button"
         onClick={handleGoogle}
         disabled={loading}
-        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 py-4 font-semibold text-stone-800 transition hover:border-orange-300 hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 py-4 font-semibold text-stone-800 transition hover:border-sky-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Chrome size={18} />
         Continue with Google
