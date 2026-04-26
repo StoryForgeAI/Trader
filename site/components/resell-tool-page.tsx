@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
+import { ThemeToggle } from '@/components/theme-toggle';
 import { supabase } from '@/lib/supabase';
 import type { ResellAnalysis } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -262,6 +263,18 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
     <main className="min-h-screen bg-[#f4fbff] px-4 py-5 md:px-8 md:py-8">
       {busy ? <AnalysisLoadingOverlay status={loadingStatus} /> : null}
       <div className="mx-auto max-w-7xl">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
+              Scan Sell AI
+            </div>
+            <div className="mt-1 text-sm text-[var(--text-3)]">
+              {mode === 'image' ? 'Image tool' : 'Text tool'}
+            </div>
+          </div>
+          <ThemeToggle />
+        </div>
+
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <Link
             href="/dashboard"
