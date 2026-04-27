@@ -260,54 +260,59 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[#f4fbff] px-4 py-5 md:px-8 md:py-8">
+    <main className="min-h-screen bg-[#f4fbff] px-4 py-4 md:px-8 md:py-8">
       {busy ? <AnalysisLoadingOverlay status={loadingStatus} /> : null}
       <div className="mx-auto max-w-7xl">
-        <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="mb-3 flex items-center justify-between gap-3 md:mb-4">
           <div>
             <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
               Scan Sell AI
             </div>
-            <div className="mt-1 text-sm text-[var(--text-3)]">
+            <div className="mt-1 text-xs text-[var(--text-3)] sm:text-sm">
               {mode === 'image' ? 'Image tool' : 'Text tool'}
             </div>
           </div>
           <ThemeToggle />
         </div>
 
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2.5 md:mb-5 md:gap-3">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"
+            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 md:py-3"
           >
             <ArrowLeft size={16} />
             Back to dashboard
           </Link>
-          <div className="rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-slate-700">
+          <div className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-slate-700 sm:px-4 sm:py-2 sm:text-sm">
             {creditCost} credits per analysis
           </div>
         </div>
 
-        <div className="mb-5 flex flex-wrap items-center gap-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
+        <div className="mb-4 flex flex-wrap items-center gap-2.5 md:mb-5 md:gap-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 sm:px-4 sm:py-2 sm:text-sm">
             <BadgeDollarSign size={16} className="text-sky-600" />
             Current credits: {credits ?? '...'}
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-4 py-2 text-sm font-semibold text-slate-700">
+          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-semibold text-slate-700 sm:px-4 sm:py-2 sm:text-sm">
             {mode === 'image' ? 'Image route' : 'Text route'}
           </div>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[1.02fr_0.98fr]">
-          <section className="rounded-[2rem] border border-sky-100 bg-white p-5 shadow-[0_20px_60px_rgba(117,149,176,0.08)] md:p-6">
+        <div className="grid gap-4 md:gap-6 xl:grid-cols-[1.02fr_0.98fr]">
+          <section className="rounded-[1.75rem] border border-sky-100 bg-white p-4 shadow-[0_20px_60px_rgba(117,149,176,0.08)] md:rounded-[2rem] md:p-6">
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">
               {mode === 'image' ? 'Image to Analysis' : 'Text to Analysis'}
             </div>
-            <h1 className="mt-3 text-3xl font-black text-slate-900">
+            <h1 className="mt-2 text-2xl font-black leading-tight text-slate-900 sm:mt-3 sm:text-3xl">
               {mode === 'image'
-                ? 'Upload a product image and get a resell breakdown'
-                : 'Type a product name and get a lower-cost resell estimate'}
+                ? 'Upload a product image for a quick resell read'
+                : 'Type a product name for a quick, lower-cost estimate'}
             </h1>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {mode === 'image'
+                ? 'One image in, clearer pricing and selling direction out.'
+                : 'Best when you already know the item and just need a fast check.'}
+            </p>
 
             {mode === 'image' ? (
               <div
@@ -325,7 +330,7 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
                   }
                 }}
                 className={cn(
-                  'mt-6 rounded-[2rem] border border-dashed p-5 transition',
+                  'mt-4 rounded-[1.7rem] border border-dashed p-4 transition sm:mt-6 sm:rounded-[2rem] sm:p-5',
                   dragging ? 'border-sky-400 bg-sky-50' : 'border-slate-300 bg-slate-50/80',
                 )}
               >
@@ -333,20 +338,20 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
                   <img
                     src={upload.previewUrl}
                     alt="Selected product"
-                    className="h-[320px] w-full rounded-[1.5rem] object-cover"
+                    className="h-[220px] w-full rounded-[1.25rem] object-cover sm:h-[320px] sm:rounded-[1.5rem]"
                   />
                 ) : (
-                  <div className="flex h-[320px] flex-col items-center justify-center rounded-[1.5rem] border border-slate-200 bg-white text-center">
-                    <ImageUp size={30} className="mb-4 text-sky-500" />
-                    <div className="text-lg font-semibold text-slate-900">Drop a product image here</div>
+                  <div className="flex h-[220px] flex-col items-center justify-center rounded-[1.25rem] border border-slate-200 bg-white px-4 text-center sm:h-[320px] sm:rounded-[1.5rem]">
+                    <ImageUp size={28} className="mb-3 text-sky-500 sm:mb-4 sm:size-[30px]" />
+                    <div className="text-base font-semibold text-slate-900 sm:text-lg">Drop a product image here</div>
                     <div className="mt-2 max-w-md text-sm leading-6 text-slate-600">
-                      You can drag in a product screenshot, supplier image, or gallery photo.
+                      Drag in a screenshot, supplier image, or product photo.
                     </div>
                   </div>
                 )}
 
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                <div className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:flex-row sm:flex-wrap sm:gap-3">
+                  <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
                     <input
                       type="file"
                       accept="image/*"
@@ -359,18 +364,18 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
                     type="button"
                     onClick={() => void handleRunAnalysis()}
                     disabled={busy}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Sparkles size={16} />
                     Run image analysis
                   </button>
                 </div>
-                <div className="mt-4 text-sm text-slate-600">
+                <div className="mt-3 text-sm text-slate-600 sm:mt-4">
                   {upload.name ? `Selected: ${upload.name}` : 'No image selected yet.'}
                 </div>
               </div>
             ) : (
-              <div className="mt-6 rounded-[2rem] border border-slate-200 bg-slate-50 p-5">
+              <div className="mt-4 rounded-[1.7rem] border border-slate-200 bg-slate-50 p-4 sm:mt-6 sm:rounded-[2rem] sm:p-5">
                 <label className="block">
                   <span className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
                     <SearchCheck size={16} />
@@ -379,16 +384,16 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
                   <textarea
                     value={textInput}
                     onChange={(event) => setTextInput(event.target.value)}
-                    rows={8}
+                    rows={5}
                     placeholder="Example: portable mini blender for smoothies"
-                    className="w-full rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4 text-slate-900 outline-none transition focus:border-sky-300"
+                    className="w-full rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3.5 text-slate-900 outline-none transition focus:border-sky-300 sm:rounded-[1.5rem] sm:px-4 sm:py-4"
                   />
                 </label>
                 <button
                   type="button"
                   onClick={() => void handleRunAnalysis()}
                   disabled={busy}
-                  className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
                   <Sparkles size={16} />
                   Run text analysis
@@ -397,20 +402,22 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
             )}
 
             {message ? (
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">
                 {message}
               </div>
             ) : null}
           </section>
 
-          <section className="rounded-[2rem] border border-sky-100 bg-white p-5 shadow-[0_20px_60px_rgba(117,149,176,0.08)] md:p-6">
+          <section className="rounded-[1.75rem] border border-sky-100 bg-white p-4 shadow-[0_20px_60px_rgba(117,149,176,0.08)] md:rounded-[2rem] md:p-6">
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">Result</div>
             {analysis ? (
-              <div className="mt-4 space-y-5">
-                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+              <div className="mt-4 space-y-4 md:space-y-5">
+                <div className="rounded-[1.35rem] border border-slate-200 bg-slate-50 p-4 sm:rounded-[1.5rem]">
                   <div className="text-sm text-slate-500">Product name</div>
-                  <div className="mt-2 text-2xl font-black text-slate-900">{analysis.productName}</div>
-                  <div className="mt-2 text-sm text-slate-600">{analysis.productSummary}</div>
+                  <div className="mt-2 text-xl font-black leading-tight text-slate-900 sm:text-2xl">
+                    {analysis.productName}
+                  </div>
+                  <div className="mt-2 text-sm leading-6 text-slate-600">{analysis.productSummary}</div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -420,7 +427,7 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
                   <MetricCard label="Demand level" value={analysis.demandLevel} />
                 </div>
 
-                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                <div className="rounded-[1.35rem] border border-slate-200 bg-slate-50 p-4 sm:rounded-[1.5rem]">
                   <div className="mb-4 text-sm font-semibold text-slate-700">Resell score bars</div>
                   <BarsChart
                     items={[
@@ -431,7 +438,7 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
                   />
                 </div>
 
-                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                <div className="rounded-[1.35rem] border border-slate-200 bg-slate-50 p-4 sm:rounded-[1.5rem]">
                   <div className="text-sm font-semibold text-slate-900">Selling points</div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {analysis.keySellingPoints.map((item) => (
@@ -445,24 +452,31 @@ export function ResellToolPage({ mode, creditCost }: ResellToolPageProps) {
                   </div>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                <div className="hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 sm:block">
                   <div className="text-sm font-semibold text-slate-900">Ad script for TikTok or YouTube</div>
                   <div className="mt-3 text-sm leading-7 text-slate-700">{analysis.adScript}</div>
                 </div>
+
+                <details className="rounded-[1.35rem] border border-slate-200 bg-slate-50 p-4 sm:hidden">
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">
+                    Show ad script
+                  </summary>
+                  <div className="mt-3 text-sm leading-6 text-slate-700">{analysis.adScript}</div>
+                </details>
 
                 <a
                   href={analysis.aliExpressSearchUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600 sm:w-auto"
                 >
                   Search on AliExpress
                   <ExternalLink size={16} />
                 </a>
               </div>
             ) : (
-              <div className="mt-4 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
-                Run an analysis to see the product name, estimated price, suggested selling price, score bars, ad script, and AliExpress search link here.
+              <div className="mt-4 rounded-[1.35rem] border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600 sm:rounded-[1.5rem] sm:p-5">
+                Run an analysis to see the product name, pricing, score bars, ad script, and AliExpress link here.
               </div>
             )}
           </section>

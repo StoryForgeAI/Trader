@@ -395,7 +395,7 @@ function TopBar({
   onToggleSidebar: () => void;
 }) {
   return (
-    <div className="glass mb-4 flex flex-col gap-3 rounded-[1.9rem] px-4 py-4 shadow-[0_22px_70px_rgba(15,23,42,0.08)] sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+    <div className="glass mb-4 flex flex-col gap-3 rounded-[1.7rem] px-4 py-3.5 shadow-[0_22px_70px_rgba(15,23,42,0.08)] sm:rounded-[1.9rem] sm:px-5 sm:py-4 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex min-w-0 items-start gap-3">
         <button
           type="button"
@@ -407,17 +407,17 @@ function TopBar({
         </button>
         <div className="min-w-0">
           <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">{activeTabLabel}</div>
-          <div className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-[var(--text-1)] sm:text-3xl">
+          <div className="mt-1.5 font-display text-[1.65rem] font-semibold tracking-[-0.03em] text-[var(--text-1)] sm:mt-2 sm:text-3xl">
             <span className="block">{greeting}</span>
-            <span className="mt-1 block break-all text-base font-medium tracking-normal text-[var(--text-2)] sm:text-lg">
+            <span className="mt-1 hidden break-all text-base font-medium tracking-normal text-[var(--text-2)] sm:block sm:text-lg">
               {email}
             </span>
           </div>
-          <div className="mt-2 text-sm leading-7 text-[var(--text-2)]">{activeTabHint}</div>
+          <div className="mt-1.5 hidden text-sm leading-7 text-[var(--text-2)] sm:block">{activeTabHint}</div>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
         <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-[var(--success)]">
           <span className={cn('h-2.5 w-2.5 rounded-full bg-emerald-500', busy && 'animate-pulse')} />
           {busy ? 'Working' : 'Ready'}
@@ -457,17 +457,17 @@ function DashboardTab({
           <h2 className="mt-3 max-w-3xl font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--text-1)] sm:text-4xl">
             Your resell research hub feels sharper now, and it moves faster with you.
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--text-2)] sm:text-base">
+          <p className="mt-3 hidden max-w-2xl text-sm leading-7 text-[var(--text-2)] sm:block sm:text-base">
             Jump into image recognition when you need discovery, switch to text when you already know the product, and keep your next decision close at hand.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid gap-3 sm:mt-6 sm:grid-cols-3">
             <MetricCard icon={<BadgeDollarSign size={18} />} label="Credits" value={String(profile.credits)} />
             <MetricCard icon={<ImageUp size={18} />} label="Image tool" value={`${IMAGE_ANALYSIS_COST} credits`} />
             <MetricCard icon={<SearchCheck size={18} />} label="Text tool" value={`${TEXT_ANALYSIS_COST} credits`} />
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="mt-4 grid gap-3 md:mt-6 md:grid-cols-2 md:gap-4">
             <InfoCard
               title="Image to Analysis"
               body="Best when you have a supplier image, screenshot, or product photo and want the AI to identify what you are looking at."
@@ -492,7 +492,7 @@ function DashboardTab({
               <div className="surface-soft rounded-[1.6rem] p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-3)]">Product</div>
                 <div className="mt-3 font-display text-2xl font-semibold text-[var(--text-1)]">{latestAnalysis.productName}</div>
-                <div className="mt-3 text-sm leading-7 text-[var(--text-2)]">{latestAnalysis.productSummary}</div>
+                <div className="mt-2 text-sm leading-6 text-[var(--text-2)] sm:mt-3 sm:leading-7">{latestAnalysis.productSummary}</div>
               </div>
               <div className="surface-soft rounded-[1.6rem] p-4">
                 <div className="mb-4 flex items-center justify-between">
@@ -1187,10 +1187,12 @@ function ToolCard({
   tone: 'warm' | 'cool';
 }) {
   return (
-    <div className={cn(
-      'surface-strong rounded-[1.7rem] p-4 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-6',
-      tone === 'warm' ? 'emphasis-warm' : 'emphasis-cool',
-    )}>
+    <div
+      className={cn(
+        'surface-strong rounded-[1.7rem] p-4 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-6',
+        tone === 'warm' ? 'emphasis-warm' : 'emphasis-cool',
+      )}
+    >
       <div className="flex items-center justify-between gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)]">{icon}</div>
         <div className="rounded-full border border-[color:var(--line)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--text-2)]">
@@ -1198,7 +1200,7 @@ function ToolCard({
         </div>
       </div>
       <div className="mt-4 font-display text-lg font-semibold leading-tight text-[var(--text-1)] sm:mt-5 sm:text-2xl">{title}</div>
-      <div className="mt-3 text-xs leading-6 text-[var(--text-2)] sm:text-sm sm:leading-7">{body}</div>
+      <div className="mt-2 hidden text-xs leading-6 text-[var(--text-2)] sm:block sm:text-sm sm:leading-7">{body}</div>
       <Link
         href={href}
         className="btn-primary mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition hover:translate-y-[-1px] sm:mt-5 sm:w-auto"
@@ -1223,14 +1225,11 @@ function InfoCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="surface-soft rounded-[1.7rem] p-5">
+    <div className="surface-soft rounded-[1.5rem] p-4 sm:rounded-[1.7rem] sm:p-5">
       <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)]">{icon}</div>
       <div className="font-display text-xl font-semibold text-[var(--text-1)]">{title}</div>
-      <div className="mt-3 text-sm leading-7 text-[var(--text-2)]">{body}</div>
-      <Link
-        href={href}
-        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent-strong)] transition hover:text-[var(--accent)]"
-      >
+      <div className="mt-2 hidden text-sm leading-7 text-[var(--text-2)] sm:block">{body}</div>
+      <Link href={href} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent-strong)] transition hover:text-[var(--accent)] sm:mt-4">
         {cta}
         <ExternalLink size={14} />
       </Link>
@@ -1242,7 +1241,7 @@ function AboutRow({ title, body }: { title: string; body: string }) {
   return (
     <div className="surface-soft rounded-[1.5rem] p-4">
       <div className="font-semibold text-[var(--text-1)]">{title}</div>
-      <div className="mt-2 text-sm leading-7 text-[var(--text-2)]">{body}</div>
+      <div className="mt-1.5 text-sm leading-6 text-[var(--text-2)] sm:mt-2 sm:leading-7">{body}</div>
     </div>
   );
 }
@@ -1262,7 +1261,7 @@ function HighlightCard({
         {icon}
       </div>
       <h3 className="font-display text-xl font-semibold text-[var(--text-1)]">{title}</h3>
-      <p className="mt-3 text-sm leading-7 text-[var(--text-2)]">{body}</p>
+      <p className="mt-2 text-sm leading-6 text-[var(--text-2)] sm:mt-3 sm:leading-7">{body}</p>
     </div>
   );
 }
@@ -1294,7 +1293,7 @@ function MiniBars({ items }: { items: { label: string; value: number }[] }) {
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="surface-soft rounded-[1.5rem] p-5 text-sm leading-7 text-[var(--text-2)]">
+    <div className="surface-soft rounded-[1.5rem] p-4 text-sm leading-6 text-[var(--text-2)] sm:p-5 sm:leading-7">
       {text}
     </div>
   );
@@ -1308,7 +1307,7 @@ function Card({ children, className }: { children: ReactNode; className?: string
   return (
     <section
       className={cn(
-        'surface-strong rounded-[2.1rem] p-5 shadow-[0_22px_74px_rgba(15,23,42,0.08)] md:p-6',
+        'surface-strong rounded-[1.8rem] p-4 shadow-[0_22px_74px_rgba(15,23,42,0.08)] md:rounded-[2.1rem] md:p-6',
         className,
       )}
     >
@@ -1327,10 +1326,10 @@ function MetricCard({
   value: string;
 }) {
   return (
-    <div className="surface-soft rounded-[1.5rem] px-5 py-4">
+    <div className="surface-soft rounded-[1.35rem] px-4 py-3.5 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
       <div className="flex items-center gap-2 text-[var(--accent-strong)]">{icon}</div>
       <div className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-3)]">{label}</div>
-      <div className="mt-2 break-words font-display text-2xl font-semibold text-[var(--text-1)]">{value}</div>
+      <div className="mt-1.5 break-words font-display text-xl font-semibold text-[var(--text-1)] sm:mt-2 sm:text-2xl">{value}</div>
     </div>
   );
 }
