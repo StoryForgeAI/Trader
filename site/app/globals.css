@@ -141,40 +141,26 @@ a {
   pointer-events: none;
 }
 
-.signal-card {
-  position: relative;
-  isolation: isolate;
-}
-
-.signal-shell {
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.signal-outline {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 2px solid rgba(255, 255, 255, 0.58);
-  box-shadow:
-    0 0 0 2px rgba(249, 115, 22, 0.18),
-    0 0 34px rgba(249, 115, 22, 0.28),
-    0 0 58px rgba(56, 189, 248, 0.18),
-    inset 0 0 18px rgba(255, 255, 255, 0.10);
-  opacity: 0;
-  transform: scale(1);
+.pulse-card {
+  animation: cardPulse 3.4s ease-in-out infinite;
   transform-origin: center;
-  animation: signalBurst 3s ease-out infinite;
+  will-change: transform;
 }
 
-.signal-delay-1 {
-  animation-delay: -2s;
+.emphasis-warm {
+  background-image: linear-gradient(180deg, rgba(249, 115, 22, 0.12), rgba(255, 255, 255, 0.92));
+  border-color: rgba(249, 115, 22, 0.26);
+  box-shadow:
+    0 22px 64px rgba(249, 115, 22, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
-.signal-delay-2 {
-  animation-delay: -1s;
+.emphasis-cool {
+  background-image: linear-gradient(180deg, rgba(56, 189, 248, 0.12), rgba(255, 255, 255, 0.92));
+  border-color: rgba(56, 189, 248, 0.26);
+  box-shadow:
+    0 22px 64px rgba(56, 189, 248, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 .float-orb {
@@ -205,32 +191,13 @@ a {
   }
 }
 
-@keyframes signalBurst {
+@keyframes cardPulse {
   0%,
-  8% {
-    opacity: 0;
-    transform: scale(1);
-    filter: blur(0px) hue-rotate(0deg);
-  }
-  18% {
-    opacity: 0.82;
-    transform: scale(1.018);
-    filter: blur(0px) hue-rotate(0deg);
-  }
-  48% {
-    opacity: 0.42;
-    transform: scale(1.08);
-    filter: blur(0.35px) hue-rotate(28deg);
-  }
-  72% {
-    opacity: 0.18;
-    transform: scale(1.13);
-    filter: blur(0.8px) hue-rotate(55deg);
-  }
   100% {
-    opacity: 0;
-    transform: scale(1.17);
-    filter: blur(1.15px) hue-rotate(80deg);
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
   }
 }
 
@@ -242,7 +209,7 @@ a {
   .float-orb,
   .float-orb-delayed,
   .panel-sheen::after,
-  .signal-outline {
+  .pulse-card {
     animation: none;
   }
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { Chrome, LoaderCircle, LockKeyhole, Mail } from 'lucide-react';
 
@@ -11,9 +12,17 @@ export function AuthCard() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false);
+
+  function ensureAcceptedPolicies() {
+    if (acceptedPolicies) return true;
+    setMessage('You need to accept the Terms of Service and Privacy Policy before continuing.');
+    return false;
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!ensureAcceptedPolicies()) return;
     setLoading(true);
     setMessage(null);
 
@@ -37,6 +46,7 @@ export function AuthCard() {
   }
 
   async function handleGoogle() {
+    if (!ensureAcceptedPolicies()) return;
     setLoading(true);
     setMessage(null);
 
@@ -123,6 +133,26 @@ export function AuthCard() {
             className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-4 text-stone-900 outline-none transition focus:border-sky-300"
             placeholder="At least 6 characters"
           />
+        </label>
+
+        <label className="flex items-start gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4 text-sm leading-6 text-stone-700">
+          <input
+            type="checkbox"
+            checked={acceptedPolicies}
+            onChange={(event) => setAcceptedPolicies(event.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-stone-300 text-sky-600 focus:ring-sky-400"
+          />
+          <span>
+            I agree to the{' '}
+            <Link href="/terms" className="font-semibold text-sky-600 hover:text-sky-700">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy" className="font-semibold text-sky-600 hover:text-sky-700">
+              Privacy Policy
+            </Link>
+            . I understand that this app uses Supabase and Vercel, so some data may be processed by third-party services.
+          </span>
         </label>
 
         <button

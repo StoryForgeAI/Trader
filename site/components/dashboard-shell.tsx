@@ -580,6 +580,7 @@ function ResellTab({
           href="/imagetoanalisis"
           badge={`${IMAGE_ANALYSIS_COST} credits`}
           icon={<ImageUp size={20} />}
+          tone="warm"
         />
         <ToolCard
           title="Text to Analysis"
@@ -587,6 +588,7 @@ function ResellTab({
           href="/texttoanalisis"
           badge={`${TEXT_ANALYSIS_COST} credits`}
           icon={<SearchCheck size={20} />}
+          tone="cool"
         />
       </div>
 
@@ -760,8 +762,7 @@ function ResellChatPanel({
   }
 
   return (
-    <Card className="signal-card relative overflow-hidden">
-      <SignalTraces />
+    <Card className="pulse-card emphasis-warm relative overflow-hidden">
       {pendingAttachment ? (
         <AttachmentConfirmModal
           fileName={pendingAttachment.name}
@@ -1048,15 +1049,14 @@ function PlansTab({
           <div
             key={pack.id}
             className={cn(
-              'signal-card surface-strong flex min-h-[240px] flex-col justify-between rounded-[1.9rem] p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]',
+              'pulse-card surface-strong flex min-h-[240px] flex-col justify-between rounded-[1.9rem] p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]',
               pack.id === 'pack_500'
-                ? 'bg-[linear-gradient(180deg,rgba(251,146,60,0.12),rgba(255,255,255,0.90))]'
+                ? 'emphasis-warm'
                 : pack.id === 'pack_150'
-                  ? 'bg-[linear-gradient(180deg,rgba(56,189,248,0.12),rgba(255,255,255,0.90))]'
-                  : '',
+                  ? 'emphasis-cool'
+                  : 'bg-[var(--surface-strong)]',
             )}
           >
-            <SignalTraces />
             <div>
               {pack.badge ? (
                 <div className="mb-4 inline-flex rounded-full border border-[color:var(--line)] bg-[var(--surface-soft)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">
@@ -1177,16 +1177,20 @@ function ToolCard({
   href,
   badge,
   icon,
+  tone,
 }: {
   title: string;
   body: string;
   href: string;
   badge: string;
   icon: ReactNode;
+  tone: 'warm' | 'cool';
 }) {
   return (
-    <div className="signal-card surface-strong rounded-[1.7rem] p-4 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-6">
-      <SignalTraces />
+    <div className={cn(
+      'pulse-card surface-strong rounded-[1.7rem] p-4 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-6',
+      tone === 'warm' ? 'emphasis-warm' : 'emphasis-cool',
+    )}>
       <div className="flex items-center justify-between gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-strong)]">{icon}</div>
         <div className="rounded-full border border-[color:var(--line)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--text-2)]">
@@ -1259,16 +1263,6 @@ function HighlightCard({
       </div>
       <h3 className="font-display text-xl font-semibold text-[var(--text-1)]">{title}</h3>
       <p className="mt-3 text-sm leading-7 text-[var(--text-2)]">{body}</p>
-    </div>
-  );
-}
-
-function SignalTraces() {
-  return (
-    <div className="signal-shell" aria-hidden="true">
-      <div className="signal-outline" />
-      <div className="signal-outline signal-delay-1" />
-      <div className="signal-outline signal-delay-2" />
     </div>
   );
 }
