@@ -141,26 +141,22 @@ a {
   pointer-events: none;
 }
 
-.pulse-card {
-  animation: cardPulse 3.4s ease-in-out infinite;
-  transform-origin: center;
-  will-change: transform;
-}
-
 .emphasis-warm {
-  background-image: linear-gradient(180deg, rgba(249, 115, 22, 0.12), rgba(255, 255, 255, 0.92));
-  border-color: rgba(249, 115, 22, 0.26);
+  background-image: linear-gradient(180deg, rgba(249, 115, 22, 0.20), rgba(251, 191, 36, 0.10) 38%, rgba(255, 255, 255, 0.92));
+  border-color: rgba(249, 115, 22, 0.34);
   box-shadow:
-    0 22px 64px rgba(249, 115, 22, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    0 24px 68px rgba(249, 115, 22, 0.14),
+    0 10px 28px rgba(251, 191, 36, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .emphasis-cool {
-  background-image: linear-gradient(180deg, rgba(56, 189, 248, 0.12), rgba(255, 255, 255, 0.92));
-  border-color: rgba(56, 189, 248, 0.26);
+  background-image: linear-gradient(180deg, rgba(56, 189, 248, 0.18), rgba(14, 165, 233, 0.09) 40%, rgba(255, 255, 255, 0.92));
+  border-color: rgba(56, 189, 248, 0.34);
   box-shadow:
-    0 22px 64px rgba(56, 189, 248, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    0 24px 68px rgba(56, 189, 248, 0.14),
+    0 10px 28px rgba(14, 165, 233, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .float-orb {
@@ -191,16 +187,6 @@ a {
   }
 }
 
-@keyframes cardPulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -208,8 +194,7 @@ a {
 
   .float-orb,
   .float-orb-delayed,
-  .panel-sheen::after,
-  .pulse-card {
+  .panel-sheen::after {
     animation: none;
   }
 }

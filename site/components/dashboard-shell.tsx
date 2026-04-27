@@ -762,7 +762,7 @@ function ResellChatPanel({
   }
 
   return (
-    <Card className="pulse-card emphasis-warm relative overflow-hidden">
+    <Card className="emphasis-warm relative overflow-hidden">
       {pendingAttachment ? (
         <AttachmentConfirmModal
           fileName={pendingAttachment.name}
@@ -1049,7 +1049,7 @@ function PlansTab({
           <div
             key={pack.id}
             className={cn(
-              'pulse-card surface-strong flex min-h-[240px] flex-col justify-between rounded-[1.9rem] p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]',
+              'surface-strong flex min-h-[240px] flex-col justify-between rounded-[1.9rem] p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]',
               pack.id === 'pack_500'
                 ? 'emphasis-warm'
                 : pack.id === 'pack_150'
@@ -1188,7 +1188,7 @@ function ToolCard({
 }) {
   return (
     <div className={cn(
-      'pulse-card surface-strong rounded-[1.7rem] p-4 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-6',
+      'surface-strong rounded-[1.7rem] p-4 shadow-[0_20px_64px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-6',
       tone === 'warm' ? 'emphasis-warm' : 'emphasis-cool',
     )}>
       <div className="flex items-center justify-between gap-4">
